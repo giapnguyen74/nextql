@@ -241,6 +241,7 @@ module.exports = function () {
 }
 ```
 
+Implement use NextQL
 
 ```
 const nextql = require('./nextql');
