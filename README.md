@@ -241,7 +241,7 @@ module.exports = function () {
 }
 ```
 
-Implement use NextQL
+**Implement use NextQL**
 
 ```
 const nextql = require('./nextql');
@@ -321,13 +321,6 @@ Fastest is nextql#getDie
 
 
 ## Features
-
-What's all the bells and whistles this project can perform?
-* What's the main functionality
-* You can also do another thing
-* If you get really randy, you can even do this
-
-
 
 ## Licensing
 
