@@ -9,6 +9,8 @@ Both love and hate GraphQL.
 #### Hate
 * Text based query? It is so SQL - we back to era of query builder tools.
 * Root query and mutation? It is nightmare to convert a tons of REST apis to GraphQL.
+* Strong typed. Sorry I not fan of strong typed language.
+* Not flexible. Most request features still go nowhere: Annotation, Input interface. 
 
 
 ## Installing / Getting started
