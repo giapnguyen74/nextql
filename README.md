@@ -188,6 +188,124 @@ But you free to choose whatever to resolve type from object. It could be mongoos
 
 If failed to resolve type from object, NextQL will fall back to default behavior: It only allow to query primitive field value. This behavior help you free from define unnecessary simple models.   
 
+## Compare with GraphQL
+Compare with [getDie sample from GraphQL.js] (http://graphql.org/graphql-js/object-types/)
+```
+var {graphql, buildSchema} = require('graphql');
+
+var schema = buildSchema(`
+  type RandomDie {
+    numSides: Int!
+    rollOnce: Int!
+    roll(numRolls: Int!): [Int]
+  }
+
+  type Query {
+    getDie(numSides: Int): RandomDie
+  }
+`);
+
+// This class implements the RandomDie GraphQL type
+class RandomDie {
+    constructor(numSides) {
+        this.numSides = numSides;
+    }
+
+    rollOnce() {
+        return 1 + Math.floor(Math.random() * this.numSides);
+    }
+
+    roll({numRolls}) {
+        var output = [];
+        for (var i = 0; i < numRolls; i++) {
+            output.push(this.rollOnce());
+        }
+        return output;
+    }
+}
+
+// The root provides the top-level API endpoints
+var root = {
+    getDie: function ({numSides}) {
+        return new RandomDie(numSides || 6);
+    }
+}
+
+module.exports = function () {
+    return graphql(schema, `{
+  getDie(numSides: 6) {
+    rollOnce
+    roll(numRolls: 3)
+  }
+}`, root)
+}
+```
+
+
+```
+const nextql = require('./nextql');
+
+class RandomDie {
+	constructor(numSides) {
+		this.numSides = numSides;
+	}
+
+	rollOnce() {
+		return 1 + Math.floor(Math.random() * this.numSides);
+	}
+
+	roll({ numRolls }) {
+		var output = [];
+		for (var i = 0; i < numRolls; i++) {
+			output.push(this.rollOnce());
+		}
+		return output;
+	}
+}
+
+
+nextql.model('RandomDie', {
+	computed: {
+		rollOnce(source) {
+			return source.rollOnce();
+		},
+		roll(source, params) {
+			return source.roll(params)
+		},
+	},
+	methods: {
+		getDie: function ({ numSides }) {
+			return new RandomDie(numSides || 6);
+		}
+	}
+})
+
+module.exports = function run() {
+	return nextql.execute({
+		RandomDie: {
+			getDie: {
+				$params: {
+					numSides: 6
+				},
+				rollOnce: 1,
+				roll: {
+					$params: {
+						numRolls: 3
+					}
+				}
+			}
+		}
+	});
+}
+```
+
+Benchmark result:
+```
+graphql#getDie x 7,324 ops/sec ±6.93% (72 runs sampled)
+nextql#getDie x 44,043 ops/sec ±5.38% (68 runs sampled)
+Fastest is nextql#getDie
+```
+
 ## Installing / Getting started
 
 
