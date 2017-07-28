@@ -1,6 +1,11 @@
 # NextQL
 > Yet another graph query language
 
+```diff
+- this code not yet for production.
+```
+
+## Why?
 Both love and hate GraphQL.
 #### Love
 * Elimination of N+1 queries
@@ -24,7 +29,7 @@ Different with GraphQL
 
 ## Query
 NextQL query is a JSON object
-```
+```json
 {
 	"person": {
 		"me": {
@@ -37,7 +42,7 @@ NextQL query is a JSON object
 It meaning you tell NextQL service goto "person" model and invoke "me" method, then pick "name" field of the result of previos method call.
 
 The JSON result should be
-```
+```json
 {
 	"person": {
 		"me": {
@@ -49,7 +54,7 @@ The JSON result should be
 
 ### Arguments
 Argments pass over specify field "$params"
-```
+```json
 {
 	"person": {
 		"get": {
@@ -60,7 +65,7 @@ Argments pass over specify field "$params"
 }
 ```
 The JSON result should be
-```
+```json
 {
 	"person": {
 		"get": {
@@ -71,7 +76,7 @@ The JSON result should be
 ```
 ### Aliases
 Field name has postfix to seperate the same method call with different arguments
-```
+```json
 {
 	"person": {
 		"get/giapnh": {
@@ -86,7 +91,7 @@ Field name has postfix to seperate the same method call with different arguments
 }
 ```
 The JSON result should be
-```
+```json
 {
 	"person": {
 		"get/giapnh": {
@@ -102,7 +107,7 @@ You should able config alias seperator whatever you want "get$giapnh" or "get#gi
 
 ### Traverse related object
 Follow link field.
-```
+```json
 {
 	"person": {
 		"get/giapnh": {
@@ -124,7 +129,7 @@ Follow link field.
 ```
 
 The JSON result should be
-```
+```json
 {
 	"person": {
 		"get/giapnh": {
@@ -145,7 +150,7 @@ The JSON result should be
 
 ## Schema 
 NextQL schema is a groups of models defined as plain Javascript object
-```
+```js
 const personSchema = {
 	fields: {
 		firstName: 1,
@@ -190,7 +195,7 @@ If failed to resolve type from object, NextQL will fall back to default behavior
 
 ## Compare with GraphQL
 Compare with [getDie sample from GraphQL.js] (http://graphql.org/graphql-js/object-types/)
-```
+```js
 var {graphql, buildSchema} = require('graphql');
 
 var schema = buildSchema(`
@@ -243,7 +248,7 @@ module.exports = function () {
 
 **Implement use NextQL**
 
-```
+```js
 const nextql = require('./nextql');
 
 class RandomDie {
@@ -301,7 +306,7 @@ module.exports = function run() {
 ```
 
 Benchmark result:
-```
+```bash
 graphql#getDie x 7,324 ops/sec ±6.93% (72 runs sampled)
 nextql#getDie x 44,043 ops/sec ±5.38% (68 runs sampled)
 Fastest is nextql#getDie
@@ -310,7 +315,7 @@ Fastest is nextql#getDie
 ## NextQL :heart: plugins
 NextQL very simple and flexible. Everything could extensible/customize. NextQL follow Vue plugin pattern.
 
-```
+```js
 MyPlugin.install = function (nextql, options) {
   nextql.beforeCreate(schema => schema);
   nextql.afterResolveType(source => source.__type);
@@ -319,16 +324,16 @@ MyPlugin.install = function (nextql, options) {
 nextql.use(MyPlugin);
 ```
 
-* ** nextql.beforeCreate ** : the hook call before NextQL build Model object from schema. It is powerful hook to customize schema.
-* ** nextql.afterResolveType ** : the hook call after NextQL resolve type from source object. It give you a chance to map source to NextQL model type.
+* **nextql.beforeCreate** : the hook call before NextQL build Model object from schema. It is powerful hook to customize schema.
+* **nextql.afterResolveType** : the hook call after NextQL resolve type from source object. It give you a chance to map source to NextQL model type.
 
-It is mongoose plugin - it catch any schema have mongoose option:
+Sample Mongoose plugin - it catch any schema have mongoose option:
 * Create mongoose model from schema fields.
 * Inject CRUD methods into schema methods.
 
 Finally it help resolve mongoose document into NextQL model.
 
-```
+```js
 const mongoose = require('mongoose');
 
 function hookBeforeCreate(options) {
@@ -373,8 +378,8 @@ module.exports = {
 }
 ```
 
-** Mongoose plugin in action **
-```
+**Mongoose plugin in action**
+```js
 const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 
