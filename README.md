@@ -307,6 +307,109 @@ nextql#getDie x 44,043 ops/sec ±5.38% (68 runs sampled)
 Fastest is nextql#getDie
 ```
 
+## NextQL :heart: plugins
+NextQL very simple and flexible. Everything could extensible/customize. NextQL follow Vue plugin pattern.
+
+```
+MyPlugin.install = function (nextql, options) {
+  nextql.beforeCreate(schema => schema);
+  nextql.afterResolveType(source => source.__type);
+}
+
+nextql.use(MyPlugin);
+```
+
+* ** nextql.beforeCreate ** : the hook call before NextQL build Model object from schema. It is powerful hook to customize schema.
+* ** nextql.afterResolveType ** : the hook call after NextQL resolve type from source object. It give you a chance to map source to NextQL model type.
+
+It is mongoose plugin - it catch any schema have mongoose option:
+* Create mongoose model from schema fields.
+* Inject CRUD methods into schema methods.
+
+Finally it help resolve mongoose document into NextQL model.
+
+```
+const mongoose = require('mongoose');
+
+function hookBeforeCreate(options) {
+	if (options.mongoose) {
+		const model = mongoose.model(options.name, options.fields);
+		options.methods = Object.assign({
+			get({ id }) {
+				return model.findById(id);
+			},
+			find() {
+				return model.find()
+			},
+			create({ data }) {
+				var ins = new model(data);
+				return ins.save();
+			},
+			update({ id, data }) {
+				return model.findById(id).then(
+					ins => {
+						Object.keys(data).forEach(path => ins.set(path, data[path]));
+						return ins.save();
+					}
+				)
+			},
+			remove({ id }) {
+				return model.findByIdAndRemove(id);
+			}
+
+		}, options.methods);
+	}
+}
+
+function hookAfterResolveType(source) {
+	return source.constructor.modelName;
+}
+
+module.exports = {
+	install(nextql) {
+		nextql.beforeCreate(hookBeforeCreate);
+		nextql.afterResolveType(hookAfterResolveType);
+	}
+}
+```
+
+** Mongoose plugin in action **
+```
+const mongoose = require("mongoose");
+mongoose.Promise = global.Promise;
+
+mongoose.connect('mongodb://localhost/nextql', { useMongoClient: true }).catch(error => {
+	console.log(error);
+	process.exit(1);
+});
+
+const nextql = require('../nextql');
+const nextqlMongoose = require('./index');
+nextql.use(nextqlMongoose);
+
+nextql.model('test', {
+	mongoose: true,
+	fields: {
+		_id: String,
+		name: String
+	}
+});
+
+async function run() {
+	const users = await nextql.execute({
+		test: {
+			find: {
+				name: 1
+			}
+		}
+	});
+
+	return users.test
+}
+```
+
+Combine beforeCreate hook and afterResolveType hook, you able to create any kind of NextQL schema and behaviors.
+
 ## Installing / Getting started
 
 
