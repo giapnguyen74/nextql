@@ -186,6 +186,7 @@ const defaultResolveType = (value) => value.constructor && value.constructor.nam
 
 But you free to choose whatever to resolve type from object. It could be mongoose model name, __type field ...
 
+If failed to resolve type from object, NextQL will fall back to default behavior: It only allow to query primitive field value. This behavior help you free from define unnecessary simple models.   
 
 ## Installing / Getting started
 
