@@ -194,7 +194,7 @@ But you free to choose whatever to resolve type from object. It could be mongoos
 If failed to resolve type from object, NextQL will fall back to default behavior: It only allow to query primitive field value. This behavior help you free from define unnecessary simple models.   
 
 ## Compare with GraphQL
-Compare with [getDie sample from GraphQL.js] (http://graphql.org/graphql-js/object-types/)
+Compare with [getDie sample from GraphQL.js](http://graphql.org/graphql-js/object-types/)
 ```js
 var {graphql, buildSchema} = require('graphql');
 

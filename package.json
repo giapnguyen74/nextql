@@ -1,0 +1,45 @@
+{
+  "name": "nextql",
+  "version": "0.0.0",
+  "description": "Yet another Graph Query Language",
+  "homepage": "https://github.com/giapnguyen74/nextql",
+  "author": {
+    "name": "Giap Nguyen",
+    "email": "giapnguyen74@gmail.com",
+    "url": "https://www.linkedin.com/in/giap-nguyen-cehv8-mcse-lcp-0359b513"
+  },
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "keywords": [
+    "nextql",
+    "graphql",
+    "api"
+  ],
+  "devDependencies": {
+    "coveralls": "^2.13.1",
+    "nsp": "^2.6.3",
+    "eslint": "^4.1.0",
+    "eslint-config-xo-space": "^0.16.0",
+    "jest": "^19.0.2",
+    "jest-cli": "^20.0.0"
+  },
+  "scripts": {
+    "prepublish": "nsp check",
+    "pretest": "eslint . --fix",
+    "test": "jest"
+  },
+  "eslintConfig": {
+    "extends": "xo-space",
+    "env": {
+      "jest": true,
+      "node": true
+    }
+  },
+  "repository": "git@github.com:giapnguyen74/nextql.git",
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "license": "MIT"
+}
