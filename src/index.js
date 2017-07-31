@@ -33,6 +33,11 @@ function resolve_typed_value(nextql, value, valueModel, query, context, info) {
 			return Promise.resolve(
 				valueModel.get(value, fieldName, query[path].$params, context)
 			).then(fieldValue => {
+				const newInfo = {
+					result: info.result,
+					path: info.path.concat(path)
+				}
+
 				if (
 					valueModel.computed[fieldName] ||
 					valueModel.fields[fieldName] === 1
@@ -43,10 +48,7 @@ function resolve_typed_value(nextql, value, valueModel, query, context, info) {
 						1,
 						query[path],
 						context,
-						{
-							result: info.result,
-							path: info.path.concat(path)
-						}
+						newInfo
 					);
 				}
 
@@ -57,10 +59,7 @@ function resolve_typed_value(nextql, value, valueModel, query, context, info) {
 						nextql.model(valueModel.fields[fieldName]),
 						query[path],
 						context,
-						{
-							result: info.result,
-							path: info.path.concat(path)
-						}
+						newInfo
 					);
 				}
 
@@ -71,10 +70,7 @@ function resolve_typed_value(nextql, value, valueModel, query, context, info) {
 						new AnonymousModel(valueModel.fields[fieldName]),
 						query[path],
 						context,
-						{
-							result: info.result,
-							path: info.path.concat(path)
-						}
+						newInfo
 					);
 				}
 			});
@@ -83,16 +79,13 @@ function resolve_typed_value(nextql, value, valueModel, query, context, info) {
 }
 
 function resolve_auto_type_value(nextql, value, query, context, info) {
-	if (value == undefined) {
-		return;
-	}
-
+	
 	if (typeof value != "object") {
 		_set(info.result, info.path, value);
 		return;
 	}
 
-	if (typeof value == "object" && isPlainObject(query)) {
+	if (isPlainObject(query)) {
 		let modelName = nextql.resolveType(value);
 		nextql.afterResolveTypeHooks.forEach(
 			hook => (modelName = hook(value) || modelName)
@@ -126,13 +119,9 @@ function resolve_value(nextql, value, valueModel, query, context, info) {
 	}
 
 	if (valueModel === 1) {
-		return Promise.resolve(
-			resolve_auto_type_value(nextql, value, query, context, info)
-		);
+		return resolve_auto_type_value(nextql, value, query, context, info)
 	} else {
-		return Promise.resolve(
-			resolve_typed_value(nextql, value, valueModel, query, context, info)
-		);
+		return resolve_typed_value(nextql, value, valueModel, query, context, info)
 	}
 }
 
@@ -218,6 +207,14 @@ class NextQL {
 		}
 		return this;
 	}
+
+	afterResolveType(hook) {
+		this.afterResolveTypeHooks.push(hook);
+	}
+
+	beforeCreate(hook){
+		this.beforeCreateHooks.push(hook);
+	}
 }
 
 module.exports = NextQL;
@@ -226,5 +223,7 @@ module.exports.resolvers = {
 	resolve_no_type_value,
 	resolve_typed_value,
 	resolve_auto_type_value,
-	resolve_value
+	resolve_value,
+	execute_method,
+	execute_model
 };

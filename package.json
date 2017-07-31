@@ -34,7 +34,7 @@
   },
   "scripts": {
     "prepublish": "nsp check",
-    "test": "jest",
+    "test": "jest --coverage",
     "compile": "babel -d lib/ src/"
   },
   "eslintConfig": {
