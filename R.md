@@ -69,13 +69,13 @@ NextQL query is a JSON object define what API methods called and what data to re
 }
 ```
 
-Equivalent call ##me## method of class ##user## then pick ##fullName## field from result. It look like combine REST API call with GraphQL query. 
+Equivalent call **me** method of class **user** then pick **fullName** field from result. It look like combine REST API call with GraphQL query. 
 ```
 /user/me => { fullName }
 ```
 
 ### Arguments
-NextQL allow pass arguments to methods and computed fields via reserved ##$params## field.
+NextQL allow pass arguments to methods and computed fields via reserved **$params** field.
 
 ```json
 {   
@@ -135,7 +135,7 @@ Could produce the JSON result:
 }
 ```
 
-By default ##/## is alias separator, anything after it doesn't counted. You could config any suffix separator.
+By default **/** is alias separator, anything after it doesn't counted. You could config any suffix separator.
 
 ### Traverse related object
 You can ask more data from relate objects. 
@@ -181,5 +181,30 @@ The JSON result should be
 }
 ```
 
-## Type system
+## Schema
+NextQL schema is a groups of models defined as plain Javascript object
+```js
+const personSchema = {
+	fields: {
+		firstName: 1, // let NextQL decide its type
+		lastName: 1,
+        address: "address" // explicit field type
+        phone: { // define anonymous type
+            work: 1, // let NextQL decide its type
+            home: 1
+        }
+	},
 
+	computed: {
+		fullName(source, params, context){
+			return source.firstName + source.lastName;
+		}
+	},
+
+	methods: {
+		get(params, context){
+			return context.db.get(params.id);
+		}
+	}
+}
+```
