@@ -1,112 +1,145 @@
-# NextQL
-> Yet another graph query language
+# ![nextql logo](images/nextql.png) NextQL 
 
-```diff
-- this code not yet for production.
+NextQL is JSON query language for APIs and a extremely flexible runtime for resolve those queries.
+1. Ask what you need, get exactly that. 
+2. Get many resource by a single request.
+3. No limitation how to define type system.
+4. No limitation how to resolve request
+
+## Introduction to NextQL
+Instead of complex type system like GraphQL, NextQL use plain object to describe how fulfill data queries.
+
+For example a User model:
+```js
+{
+    fields: {
+        id: 1, /* 1 mean NextQL should automatically resolve the field type */
+        firstName: 1,
+        lastName: 1
+    },
+    computed: {
+        fullName(user){
+            return user.firstName + ‘ ’ + user.lastName;
+        }
+    },
+    methods:{
+        me(params, ctx){
+            return ctx.request.auth.user;
+        }   
+    }
+}
+```
+User model tell NextQL - user object may have 3 fields id, firstName and lastName. The user also have a computed field fullName which calculated use the function provided. Finally the user model expose a me function to query. Compare with GraphQL, NextQL distinguish between a normal field, a computed field and a query function. So you don’t need to group all expose queries into single root Query type like GraphQL - remember many people ask [Can I split queries and mutators across different files?](https://github.com/apollographql/graphql-tools/issues/186).
+
+When NextQL receive NextQL query which in JSON format, it will start to resolve follow order: model -> method -> fields -> ... recursive fields -> final result.
+
+For example the query
+```json
+{
+    "user": {
+        "me": {
+            "fullName": 1
+        }
+    }
+}
 ```
 
-## Why?
-Both love and hate GraphQL.
-#### Love
-* Elimination of N+1 queries
-* Async resolve results from multi backends, then combine into single result.
-
-#### Hate
-* Text based query? It is so SQL - we back to era of query builder tools.
-* Root query and mutation? It is nightmare to convert a tons of REST apis to GraphQL.
-* Strong typed. Sorry I not fan of strong typed language.
-* Not flexible. Most request features still go nowhere: Annotation, Input interface. 
-
-# Introduction to NextQL
-NextQL like GraphQL
-* Specify the exactly data needed for a view and fetch that data in a single network request.
-* Traverse graph data or related objects.
-
-Different with GraphQL
-* No strong typed or schema.
-* JSON based query
-* No root queries or mutations
+Could produce the JSON result:
+```json
+{
+    "user":{
+        "me": {
+            "fullName": "Giap Nguyen Huu"
+        }
+    }
+}
+```
 
 ## Query
-NextQL query is a JSON object
+NextQL query is a JSON object define what API methods called and what data to return. 
+
 ```json
 {
-	"person": {
-		"me": {
-			"name": 1
-		}
-	}
+    "user": {  
+        "me": { 
+            "fullName": 1
+        }
+
+    }
 }
 ```
 
-It meaning you tell NextQL service goto "person" model and invoke "me" method, then pick "name" field of the result of previos method call.
-
-The JSON result should be
-```json
-{
-	"person": {
-		"me": {
-			"name": "Nguyen Huu Giap"
-		}
-	}
-}
+Equivalent call **me** method of class **user** then pick **fullName** field from result. It look like combine REST API call with GraphQL query. 
+```
+/user/me => { fullName }
 ```
 
 ### Arguments
-Argments pass over specify field "$params"
+NextQL allow pass arguments to methods and computed fields via reserved **$params** field.
+
 ```json
-{
-	"person": {
-		"get": {
-			"$params": { "id": "giapnh" },
-			"name": 1
-		}
-	}
+{   
+    "human": {
+        "get": {
+            "$params": { "id": "1000" },
+            "fullName": 1,
+            "height": {
+                "$params": { "unit": "m"}
+            }
+        }
+    }
 }
 ```
-The JSON result should be
+
+Could produce the JSON result:
 ```json
 {
-	"person": {
-		"get": {
-			"name": "Nguyen Huu Giap"
-		}
-	}
+    "human":{
+        "get": {
+            "$params": { "id": "1000" },
+            "fullName": "Nguyen Huu Giap",
+            "height" : 1.69
+        }
+    }
 }
 ```
-### Aliases
-Field name has postfix to seperate the same method call with different arguments
+
+### Alias
+Because result field match with query field. If you need call multiple methods, fields you need alias. NextQL alias is a suffix separator which resolver ignore.
 ```json
 {
-	"person": {
-		"get/giapnh": {
-			"$params": { "id": "giapnh" },
-			"name": 1
-		},
-		"get/nguyen": {
-			"$params": { "id": "nguyen" },
-			"name": 1
-		}
-	}
+    "human":{
+        "get/1000": {
+            "$params": { "id": "1000" },
+            "name": 1
+        },
+        "get/1001": {
+            "$params": { "id": "1001" },
+            "name": 1
+        }
+    }
 }
 ```
-The JSON result should be
+
+Could produce the JSON result:
 ```json
 {
-	"person": {
-		"get/giapnh": {
-			"name": "Nguyen Huu Giap"
-		},
-		"get/nguyen": {
-			"name": "Dinh Thi Kim Nguyen"
-		}
-	}
+    "human":{
+        "get/1000": {
+            "name": "Nguyen Huu Giap"
+        },
+        "get/1001": {
+            "name": "Dinh Thi Kim Nguyen"
+        }
+    }
 }
 ```
-You should able config alias seperator whatever you want "get$giapnh" or "get#giapnh"
+
+By default **/** is alias separator, anything after it doesn't counted. You could config any suffix separator.
 
 ### Traverse related object
-Follow link field.
+You can ask more data from relate objects. 
+
 ```json
 {
 	"person": {
@@ -148,13 +181,18 @@ The JSON result should be
 }
 ```
 
-## Schema 
+## Schema
 NextQL schema is a groups of models defined as plain Javascript object
 ```js
-const personSchema = {
+const personModel = {
 	fields: {
-		firstName: 1,
-		lastName: 1
+		firstName: 1, /* let NextQL decide field type */
+		lastName: 1,
+        address: "address" // explicit field type
+        phone: { /* define inline type */
+            work: 1,
+            home: 1
+        }
 	},
 
 	computed: {
@@ -170,147 +208,26 @@ const personSchema = {
 	}
 }
 ```
-Schema use to resolve an object into query value.
 
-* **fields**: Any field exposed for query. Resolve direct from source, apply for primitive value only.
+* **fields**: Any field exposed for query. Resolve directly from source.
 * **computed**: Apply for virtual field which not present in source object or you want expose source object's methods.
 * **methods**: Any methods the model expose for query.
 
-In exaggeration, schema's fields map with object's field. schema's computed map with object's instance methods, and finally schema's methods map with object's static methods.
+There are 3 options to define field type describe above
+1. Let NextQL resolve field type. This is prefer option.
+2. Explicit assign model name.
+3. Inline nested fields.
 
-### How to map an Object with a Model
-GraphQL force you define input and output type - so it easy map a result object into specify type. NextQL let you free to return any kind of object, so how it decide which model applied?
+computed fields and methods automatically let NextQL resolve return type.
 
-Easily, NextQL treat all object same as an GraphQL Interface. So you must provide a global resolveType function to resolve model name from object.
-
-NextQL ship with defaultResolveType which lookup value constructor name for model name. 
-
-```
-const defaultResolveType = (value) => value.constructor && value.constructor.name;
-```
-
-But you free to choose whatever to resolve type from object. It could be mongoose model name, __type field ...
-
-If failed to resolve type from object, NextQL will fall back to default behavior: It only allow to query primitive field value. This behavior help you free from define unnecessary simple models.   
-
-## Compare with GraphQL
-Compare with [getDie sample from GraphQL.js](http://graphql.org/graphql-js/object-types/)
+### How NextQL decide field type?
+NextQL use a global **resolveType function** to resolve model name from object which by default use value constructor name for model name. 
 ```js
-var {graphql, buildSchema} = require('graphql');
-
-var schema = buildSchema(`
-  type RandomDie {
-    numSides: Int!
-    rollOnce: Int!
-    roll(numRolls: Int!): [Int]
-  }
-
-  type Query {
-    getDie(numSides: Int): RandomDie
-  }
-`);
-
-// This class implements the RandomDie GraphQL type
-class RandomDie {
-    constructor(numSides) {
-        this.numSides = numSides;
-    }
-
-    rollOnce() {
-        return 1 + Math.floor(Math.random() * this.numSides);
-    }
-
-    roll({numRolls}) {
-        var output = [];
-        for (var i = 0; i < numRolls; i++) {
-            output.push(this.rollOnce());
-        }
-        return output;
-    }
-}
-
-// The root provides the top-level API endpoints
-var root = {
-    getDie: function ({numSides}) {
-        return new RandomDie(numSides || 6);
-    }
-}
-
-module.exports = function () {
-    return graphql(schema, `{
-  getDie(numSides: 6) {
-    rollOnce
-    roll(numRolls: 3)
-  }
-}`, root)
-}
+const defaultResolveType = value => value.constructor && value.constructor.name;
 ```
 
-**Implement use NextQL**
-
-```js
-const nextql = require('./nextql');
-
-class RandomDie {
-	constructor(numSides) {
-		this.numSides = numSides;
-	}
-
-	rollOnce() {
-		return 1 + Math.floor(Math.random() * this.numSides);
-	}
-
-	roll({ numRolls }) {
-		var output = [];
-		for (var i = 0; i < numRolls; i++) {
-			output.push(this.rollOnce());
-		}
-		return output;
-	}
-}
-
-
-nextql.model('RandomDie', {
-	computed: {
-		rollOnce(source) {
-			return source.rollOnce();
-		},
-		roll(source, params) {
-			return source.roll(params)
-		},
-	},
-	methods: {
-		getDie: function ({ numSides }) {
-			return new RandomDie(numSides || 6);
-		}
-	}
-})
-
-module.exports = function run() {
-	return nextql.execute({
-		RandomDie: {
-			getDie: {
-				$params: {
-					numSides: 6
-				},
-				rollOnce: 1,
-				roll: {
-					$params: {
-						numRolls: 3
-					}
-				}
-			}
-		}
-	});
-}
-```
-
-Benchmark result:
-```bash
-graphql#getDie x 7,324 ops/sec ±6.93% (72 runs sampled)
-nextql#getDie x 44,043 ops/sec ±5.38% (68 runs sampled)
-Fastest is nextql#getDie
-```
+You can config your own **resolveType** or better use **afterResolveTypeHooks**. You free to choose whatever to resolve type from object. It could be mongoose model name, __type field ... 
+If resolveType return "Object" as model name, NextQL will fall back to default behavior: It only allow to query primitive field value. This behavior help you free from define unnecessary simple models.   
 
 ## NextQL :heart: plugins
 NextQL very simple and flexible. Everything could extensible/customize. NextQL follow Vue plugin pattern.
@@ -367,7 +284,7 @@ function hookBeforeCreate(options) {
 }
 
 function hookAfterResolveType(source) {
-	return source.constructor.modelName;
+	return source.constructor && source.constructor.modelName;
 }
 
 module.exports = {
@@ -433,4 +350,3 @@ Combine beforeCreate hook and afterResolveType hook, you able to create any kind
 ## Licensing
 
 "The code in this project is licensed under MIT license."
-
