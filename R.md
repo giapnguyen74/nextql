@@ -1,12 +1,12 @@
-#NextQL ![nextql logo](images/nextql.png)
+# NextQL ![nextql logo](images/nextql.png)
 
 NextQL is JSON query language for APIs and a extremely flexible runtime for resolve those queries.
 1. Ask what you need, get exactly that. 
 2. Get many resource by a single request.
-3. No limitation how to describe type system.
+3. No limitation how to define type system.
 4. No limitation how to resolve request
 
-##Introduction to NextQL
+## Introduction to NextQL
 Instead of complex type system like GraphQL, NextQL use plain object to describe how fulfill data queries.
 
 For example a User model:
@@ -36,8 +36,10 @@ When NextQL receive NextQL query which in JSON format, it will start to resolve 
 For example the query
 ```json
 {
-    "me": {
-        "fullName": 1
+    "user": {
+        "me": {
+            "fullName": 1
+        }
     }
 }
 ```
@@ -45,8 +47,139 @@ For example the query
 Could produce the JSON result:
 ```json
 {
-    "me": {
-        "fullName": "Giap Nguyen Huu"
+    "user":{
+        "me": {
+            "fullName": "Giap Nguyen Huu"
+        }
     }
 }
 ```
+
+## Query
+NextQL query is a JSON object define what API methods called and what data to return. 
+
+```json
+{
+    "user": {  
+        "me": { 
+            "fullName": 1
+        }
+
+    }
+}
+```
+
+Equivalent call ##me## method of class ##user## then pick ##fullName## field from result. It look like combine REST API call with GraphQL query. 
+```
+/user/me => { fullName }
+```
+
+### Arguments
+NextQL allow pass arguments to methods and computed fields via reserved ##$params## field.
+
+```json
+{   
+    "human": {
+        "get": {
+            "$params": { "id": "1000" },
+            "fullName": 1,
+            "height": {
+                "$params": { "unit": "m"}
+            }
+        }
+    }
+}
+```
+
+Could produce the JSON result:
+```json
+{
+    "human":{
+        "get": {
+            "$params": { "id": "1000" },
+            "fullName": "Nguyen Huu Giap",
+            "height" : 1.69
+        }
+    }
+}
+```
+
+### Alias
+Because result field match with query field. If you need call multiple methods, fields you need alias. NextQL alias is a suffix separator which resolver ignore.
+```json
+{
+    "human":{
+        "get/1000": {
+            "$params": { "id": "1000" },
+            "name": 1
+        },
+        "get/1001": {
+            "$params": { "id": "1001" },
+            "name": 1
+        }
+    }
+}
+```
+
+Could produce the JSON result:
+```json
+{
+    "human":{
+        "get/1000": {
+            "name": "Nguyen Huu Giap"
+        },
+        "get/1001": {
+            "name": "Dinh Thi Kim Nguyen"
+        }
+    }
+}
+```
+
+By default ##/## is alias separator, anything after it doesn't counted. You could config any suffix separator.
+
+### Traverse related object
+You can ask more data from relate objects. 
+
+```json
+{
+	"person": {
+		"get/giapnh": {
+			"$params": { "id": "giapnh" },
+			"name": 1,
+			"children": {
+				"name": 1
+			}
+		},
+		"get/nguyen": {
+			"$params": { "id": "nguyen" },
+			"name": 1,
+			"children": {
+				"name": 1
+			}
+		}
+	}
+}
+```
+
+The JSON result should be
+```json
+{
+	"person": {
+		"get/giapnh": {
+			"name": "Nguyen Huu Giap",
+			"children": [{
+				"name": "Nguyen Huu Vinh"
+			}]
+		},
+		"get/nguyen": {
+			"name": "Dinh Thi Kim Nguyen",
+			"children": [{
+				"name": "Nguyen Huu Vinh"
+			}]
+		}
+	}
+}
+```
+
+## Type system
+
