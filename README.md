@@ -355,6 +355,9 @@ async function run() {
 
 Combine beforeCreate hook and afterResolveType hook, you able to create any kind of NextQL schema and behaviors.
 
+## Plugins
+* [nextql-validate](https://github.com/giapnguyen74/nextql-validate)
+
 ## Why another GraphQL?
 Because I love GraphQL no kidding. It defined exactly data shape we want to query. It easy a pain to query hierarchical data. And it let you combine multiple datasource easily. So why not use GraphQL? because force me follow it's philosophy. 
 
