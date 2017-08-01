@@ -36,7 +36,7 @@ function resolve_typed_value(nextql, value, valueModel, query, context, info) {
 				const newInfo = {
 					result: info.result,
 					path: info.path.concat(path)
-				}
+				};
 
 				if (
 					valueModel.computed[fieldName] ||
@@ -79,7 +79,6 @@ function resolve_typed_value(nextql, value, valueModel, query, context, info) {
 }
 
 function resolve_auto_type_value(nextql, value, query, context, info) {
-	
 	if (typeof value != "object") {
 		_set(info.result, info.path, value);
 		return;
@@ -104,8 +103,16 @@ function resolve_auto_type_value(nextql, value, query, context, info) {
 }
 
 function resolve_value(nextql, value, valueModel, query, context, info) {
-	if (value == undefined) return;
+	if (value == undefined) {
+		_set(info.result, info.path, null);
+		return;
+	}
 	if (typeof value == "function") return;
+	if (typeof value.then == "function") {
+		return value.then(v =>
+			resolve_value(nextql, v, valueModel, query, context, info)
+		);
+	}
 
 	if (Array.isArray(value)) {
 		return Promise.all(
@@ -119,9 +126,16 @@ function resolve_value(nextql, value, valueModel, query, context, info) {
 	}
 
 	if (valueModel === 1) {
-		return resolve_auto_type_value(nextql, value, query, context, info)
+		return resolve_auto_type_value(nextql, value, query, context, info);
 	} else {
-		return resolve_typed_value(nextql, value, valueModel, query, context, info)
+		return resolve_typed_value(
+			nextql,
+			value,
+			valueModel,
+			query,
+			context,
+			info
+		);
 	}
 }
 
@@ -212,7 +226,7 @@ class NextQL {
 		this.afterResolveTypeHooks.push(hook);
 	}
 
-	beforeCreate(hook){
+	beforeCreate(hook) {
 		this.beforeCreateHooks.push(hook);
 	}
 }

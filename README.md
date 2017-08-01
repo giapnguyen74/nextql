@@ -1,6 +1,7 @@
-# ![nextql logo](images/nextql.png) NextQL 
+![nextql logo](images/nextql.png)
+# NextQL 
 
-NextQL is JSON query language for APIs and a extremely flexible runtime for resolve those queries.
+NextQL is JSON query language for APIs and a robust and extensible runtime for resolve those queries.
 1. Ask what you need, get exactly that. 
 2. Get many resource by a single request.
 3. No limitation how to define type system.
@@ -251,35 +252,51 @@ Sample Mongoose plugin - it catch any schema have mongoose option:
 Finally it help resolve mongoose document into NextQL model.
 
 ```js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
+/** Simply convert mongoose schema to nextql fields */
+function normalizeFields(fields) {
+	const _fields = {};
+	Object.keys(fields).forEach(k => {
+		if (fields[k].constructor == Object && !fields[k].type) {
+			_fields[k] = normalizeFields(fields[k]);
+		} else {
+			_fields[k] = 1;
+		}
+	});
+	return _fields;
+}
 function hookBeforeCreate(options) {
 	if (options.mongoose) {
 		const model = mongoose.model(options.name, options.fields);
-		options.methods = Object.assign({
-			get({ id }) {
-				return model.findById(id);
-			},
-			find() {
-				return model.find()
-			},
-			create({ data }) {
-				var ins = new model(data);
-				return ins.save();
-			},
-			update({ id, data }) {
-				return model.findById(id).then(
-					ins => {
-						Object.keys(data).forEach(path => ins.set(path, data[path]));
-						return ins.save();
-					}
-				)
-			},
-			remove({ id }) {
-				return model.findByIdAndRemove(id);
-			}
+		options.fields = normalizeFields(options.fields);
 
-		}, options.methods);
+		options.methods = Object.assign(
+			{
+				get({ id }) {
+					return model.findById(id);
+				},
+				find() {
+					return model.find();
+				},
+				create({ data }) {
+					var ins = new model(data);
+					return ins.save();
+				},
+				update({ id, data }) {
+					return model.findById(id).then(ins => {
+						Object.keys(data).forEach(path =>
+							ins.set(path, data[path])
+						);
+						return ins.save();
+					});
+				},
+				remove({ id }) {
+					return model.findByIdAndRemove(id);
+				}
+			},
+			options.methods
+		);
 	}
 }
 
@@ -292,7 +309,7 @@ module.exports = {
 		nextql.beforeCreate(hookBeforeCreate);
 		nextql.afterResolveType(hookAfterResolveType);
 	}
-}
+};
 ```
 
 **Mongoose plugin in action**
@@ -331,6 +348,20 @@ async function run() {
 ```
 
 Combine beforeCreate hook and afterResolveType hook, you able to create any kind of NextQL schema and behaviors.
+
+## Why another GraphQL?
+Because I love GraphQL no kidding. It defined exactly data shape we want to query. It easy a pain to query hierarchical data. And it let you combine multiple datasource easily. So why not use GraphQL? because force me follow it's philosophy. 
+
+### Strong typed
+I believe it is waste of time in most of cases. As developer, we should focus to solve problems instead of spending time to fight with a type system. NextQL based on robust resolveType functions/hook. Basically it's ducking type system: whether it QUACKS-like-a duck, WALKS-like-a duck, it is a duck.
+
+### String based query and complex schema system.
+GraphQL has a steeper learning curve. It look like you study another language, remind me about SQL nightmare. Actually, a lot of GraphQL query/schema builder tools developed to solve the problem.
+
+NextQL is easier to learn and write. It is all about JSON/JS object. Beacuse of use pure JSON/JS objects, NextQL very robust. You can manipulate, customize, or mixins whatever you want.
+
+### Lazy failed.
+GraphQL not fail fast. It collect all errors into result. Well it's ok in some use cases. But it is noisy to parse GraphQL's list of errors and make decision how to deal with them. Most of time, you want fail fast. Fix it if your fault. Retry if system fault.
 
 ## Installing / Getting started
 
