@@ -25,21 +25,29 @@ class Model {
 	}
 
 	call(methodName, params = {}, context = {}) {
-		assertOk(this.methods[methodName], "no-method: " + methodName, 404);
-		return this.methods[methodName].apply(this, [params, context]);
+		try {
+			assertOk(this.methods[methodName], "no-method: " + methodName, 404);
+			return this.methods[methodName].apply(this, [params, context]);
+		} catch (e) {
+			return Promise.reject(e);
+		}
 	}
 
 	get(value, fieldName, params = {}, context = {}) {
-		if (this.computed[fieldName]) {
-			return this.computed[fieldName].apply(this, [
-				value,
-				params,
-				context
-			]);
-		}
+		try {
+			if (this.computed[fieldName]) {
+				return this.computed[fieldName].apply(this, [
+					value,
+					params,
+					context
+				]);
+			}
 
-		if (this.fields[fieldName]) {
-			return value[fieldName];
+			if (this.fields[fieldName]) {
+				return value[fieldName];
+			}
+		} catch (e) {
+			return Promise.reject(e);
 		}
 	}
 }

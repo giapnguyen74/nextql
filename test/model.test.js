@@ -45,7 +45,7 @@ test("model#call", function() {
 	expect(m.call("a", {})).toBe("a called");
 });
 
-test("model#call no-method", function() {
+test("model#call no-method", function(done) {
 	const model = {
 		methods: {
 			a() {
@@ -54,8 +54,10 @@ test("model#call no-method", function() {
 		}
 	};
 	const m = new Model(model);
-
-	expect(() => m.call("b", {})).toThrowError();
+	m.call("b", {}).catch(error => {
+		expect(error.message).toBe("no-method: b");
+		done();
+	});
 });
 
 test("model#get", function() {
