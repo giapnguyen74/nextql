@@ -104,7 +104,6 @@ Could produce the JSON result:
 {
     "human":{
         "get": {
-            "$params": { "id": "1000" },
             "fullName": "Nguyen Huu Giap",
             "height" : 1.69
         }
