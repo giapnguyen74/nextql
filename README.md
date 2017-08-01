@@ -7,6 +7,13 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 3. No limitation how to define type system.
 4. No limitation how to resolve request
 
+## Install
+Install NextQL from npm
+
+```sh
+npm install --save graphql
+```
+
 ## Introduction to NextQL
 Instead of complex type system like GraphQL, NextQL use plain object to describe how fulfill data queries.
 
@@ -363,14 +370,38 @@ NextQL is easier to learn and write. It is all about JSON/JS object. Beacuse of 
 ### Lazy failed.
 GraphQL not fail fast. It collect all errors into result. Well it's ok in some use cases. But it is noisy to parse GraphQL's list of errors and make decision how to deal with them. Most of time, you want fail fast. Fix it if your fault. Retry if system fault.
 
-## Installing / Getting started
+## Samples
+Please check samples folder. Yeah NextQL do **StarWar** too.
+
+## Testing
+
+Test Suites: 6 passed, 6 total
+
+Tests:       35 passed, 35 total
+
+Snapshots:   0 total
+
+Time:        0.523s, estimated 1s
+
+Ran all test suites.
+
+
+File              |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+------------------|----------|----------|----------|----------|----------------|
+All files         |    96.03 |    90.14 |    97.56 |    97.16 |                |
+ samples/starwar  |    88.57 |       75 |    85.71 |     87.5 |                |
+  starWarsData.js |    90.48 |       75 |    85.71 |    88.89 |        104,121 |
+  starwar.js      |    85.71 |      100 |      100 |    85.71 |          30,60 |
+ src              |    98.28 |    92.06 |      100 |      100 |                |
+  index.js        |    97.56 |    88.37 |      100 |      100 |11,66,87,90,110 |
+  model.js        |      100 |      100 |      100 |      100 |                |
+  util.js         |      100 |      100 |      100 |      100 |                |
 
 
 ## Developing
 
 
 ### Building
-
 
 
 ### Deploying / Publishing

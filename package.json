@@ -29,7 +29,7 @@
 		"regenerator-runtime": "^0.10.5"
 	},
 	"scripts": {
-		"prepublish": "nsp check",
+		"prepublish": "npm run compile",
 		"test": "jest --coverage",
 		"compile": "babel -d lib/ src/"
 	},
