@@ -373,6 +373,50 @@ GraphQL not fail fast. It collect all errors into result. Well it's ok in some u
 ## Samples
 Please check samples folder. Yeah NextQL do **StarWar** too.
 
+## APIs
+
+### execute
+Execute query.
+```js
+nextql.execute(query, context).then(
+	result => result,
+	error => error
+);
+```
+
+### model
+Register new model
+```js
+nextql.model('name', { 
+	fields: {},
+	computed: {},
+	methods: {}
+})
+```
+
+Lookup model throw execption if not found
+```js
+nextql.model('name')
+```
+
+### use
+Register plugin
+```js
+nextql.use(pluginObj, pluginOpts);
+```
+
+### beforeCreate
+Register a hook called when new model added. Allow you manipulate model options.
+```js
+nextql.beforeCreate(options => options);
+```
+
+### afterResolveType
+Register a hook called when NextQL try resolve type from source. 
+```js
+nextql.afterResolveType(source => modelName);
+```
+
 ## Testing
 
 Test Suites: 6 passed, 6 total
