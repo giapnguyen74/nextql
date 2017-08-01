@@ -11,7 +11,7 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 Install NextQL from npm
 
 ```sh
-npm install --save graphql
+npm install --save nextql
 ```
 
 ## Introduction to NextQL
