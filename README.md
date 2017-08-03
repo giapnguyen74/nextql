@@ -13,6 +13,9 @@ Install NextQL from npm
 ```sh
 npm install --save nextql
 ```
+## Plugins
+* [nextql-validate](https://github.com/giapnguyen74/nextql-validate) : Validate nextql methods with fastest-validator.
+* [nextql-feathers](https://github.com/giapnguyen74/nextql-feathers) : Extend NextQL with awesome Feathersjs service. NextQL could do real-time/multiple backend/authentication.
 
 ## Introduction to NextQL
 Instead of complex type system like GraphQL, NextQL use plain object to describe how fulfill data queries.
@@ -355,8 +358,7 @@ async function run() {
 
 Combine beforeCreate hook and afterResolveType hook, you able to create any kind of NextQL schema and behaviors.
 
-## Plugins
-* [nextql-validate](https://github.com/giapnguyen74/nextql-validate)
+
 
 ## Why another GraphQL?
 Because I love GraphQL no kidding. It defined exactly data shape we want to query. It easy a pain to query hierarchical data. And it let you combine multiple datasource easily. So why not use GraphQL? because force me follow it's philosophy. 
