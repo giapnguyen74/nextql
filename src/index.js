@@ -70,12 +70,3 @@ class NextQL {
 }
 
 module.exports = NextQL;
-
-module.exports.resolvers = {
-	resolve_no_type_value,
-	resolve_typed_value,
-	resolve_auto_type_value,
-	resolve_value,
-	execute_method,
-	execute_model
-};

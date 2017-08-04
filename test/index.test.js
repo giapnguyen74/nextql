@@ -7,7 +7,7 @@ const {
 	resolve_value,
 	execute_method,
 	execute_model,
-} = NextQL.resolvers;
+} = require("../src/resolvers");
 
 test("nextql#resolve_no_type_value: simple", function(done) {
 	const result = {};
