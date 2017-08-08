@@ -8,9 +8,9 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 [![Coverage Status](https://coveralls.io/repos/graphql/nextql/badge.svg?branch=master)](https://coveralls.io/repos/graphql/nextql/badge.svg?branch=master)
 
 1. Ask what you need, get exactly that. 
-2. Get many resource by a single request.
-3. No limitation how to define type system.
-4. No limitation how to resolve request
+2. Get many resources by a single request.
+3. No limitation how to define type systems.
+4. No limitation how to resolve requests.
 
 ## Change Logs
 ### 0.0.3 (08-08-2017)
@@ -32,38 +32,79 @@ npm install --save nextql
 * [nextql-feathers](https://github.com/giapnguyen74/nextql-feathers) : Extend NextQL with awesome Feathersjs service. NextQL could do real-time/multiple backend/authentication.
 
 ## Introduction to NextQL
-Instead of complex type system like GraphQL, NextQL use plain object to describe how fulfill data queries.
+NextQL is simply a data query engine inspired by [Facebook GraphQL](http://graphql.org/) but much more simple. NextQL consists a type system based on pure JS objects and a JSON query language.
 
+## Type System
 For example a User model:
 ```js
 {
     fields: {
-        id: 1, /* 1 mean NextQL should automatically resolve the field type */
-        firstName: 1,
-        lastName: 1
-    },
-    computed: {
-        fullName(user){
-            return user.firstName + ‘ ’ + user.lastName;
-        }
-    },
-    methods:{
-        me(params, ctx){
-            return ctx.request.auth.user;
-        }   
-    }
+		firstName: 1, /* let NextQL decide field type */
+		lastName: 1,
+        address: "Address", // explicit field type
+        phone: { /* explicit inline type */
+            work: 1,
+            home: 1
+        },
+		fullName: "*" // explicit scalar type for computed field [fullName]
+	},
+
+	computed: {
+		// virtual field computed from source value.
+		fullName(source, params, context){
+			return source.firstName + source.lastName;
+		}
+	},
+
+	methods: {
+		// exposed method for this model.
+		get(params, context){
+			return context.db.get(params.id);
+		}
+	},
+	returns: {
+		// Define resolve function to return type for method [get]
+		get(){
+			return "User"
+		}
+	}
 }
 ```
-User model tell NextQL - user object may have 3 fields id, firstName and lastName. The user also have a computed field fullName which calculated use the function provided. Finally the user model expose a me function to query. Compare with GraphQL, NextQL distinguish between a normal field, a computed field and a query function. So you don’t need to group all expose queries into single root Query type like GraphQL - remember many people ask [Can I split queries and mutators across different files?](https://github.com/apollographql/graphql-tools/issues/186).
 
-When NextQL receive NextQL query which in JSON format, it will start to resolve follow order: model -> method -> fields -> ... recursive fields -> final result.
+Every model configuration may have 4 keys:
+* **fields** : define model's field name and how to resolve its type.
+* **computed** : define model's virtual field and the function to compute value from source object. NextQL will automatically resolve the value type, unless explicit defined in **fields**
+* **methods**: define exposed APIs for the model. 
+* **returns**: By default NextQL will try to resolve type for method's result. The options allow explicit defined type for return value.
+
+**fields** and **computed** equivalent with GraphQL's fields; **methods** and **returns** equivalent with GraphQL's queries and mutations.
+
+Different with GraphQL, NextQL not enforced strong-typed for field and method values rather use "ducking type system". You have many options for define how to resolve value type:
+* **1** : let NextQL decide value type. [How NextQL decide field/method type?](###How NextQL decide field/method type?)
+* **"other model name"** : explicit assign value type.
+* **"*"** : explicit assign value as scalar value.
+* **[Object]** : explicit define value as nested type
+* **[Function]** : Given a function, NextQL should call to resolve value type.
+
+## How NextQL decide field/method type?
+NextQL use a global **resolveType function** to resolve model name from 
+object which by default use value constructor name for model name. 
+```js
+const defaultResolveType = value => value.constructor && value.constructor.name;
+```
+
+You can config your own **resolveType** or better use **afterResolveTypeHooks**. You free to choose whatever to resolve type from object. It could be mongoose model name, __type field ... 
+ 
+
+## Query
+NextQL query is a JSON object define what API methods called and what data to return. NextQL will start to resolve query follow order: model -> method -> fields -> ... recursive fields -> final result.
 
 For example the query
 ```json
 {
-    "user": {
-        "me": {
-            "fullName": 1
+    "user": { // model
+        "me": { // method
+            "fullName": 1 //field or computed field
         }
     }
 }
@@ -76,20 +117,6 @@ Could produce the JSON result:
         "me": {
             "fullName": "Giap Nguyen Huu"
         }
-    }
-}
-```
-
-## Query
-NextQL query is a JSON object define what API methods called and what data to return. 
-
-```json
-{
-    "user": {  
-        "me": { 
-            "fullName": 1
-        }
-
     }
 }
 ```
@@ -159,7 +186,7 @@ Could produce the JSON result:
 }
 ```
 
-By default **/** is alias separator, anything after it doesn't counted. You could config any suffix separator.
+By default **"/"** is alias separator, anything after it doesn't counted. You could config any suffix separator.
 
 ### Traverse related object
 You can ask more data from relate objects. 
@@ -205,55 +232,8 @@ The JSON result should be
 }
 ```
 
-## Schema
-NextQL schema is a groups of models defined as plain Javascript object
-```js
-const personModel = {
-	fields: {
-		firstName: 1, /* let NextQL decide field type */
-		lastName: 1,
-        address: "address" // explicit field type
-        phone: { /* define inline type */
-            work: 1,
-            home: 1
-        }
-	},
 
-	computed: {
-		fullName(source, params, context){
-			return source.firstName + source.lastName;
-		}
-	},
-
-	methods: {
-		get(params, context){
-			return context.db.get(params.id);
-		}
-	}
-}
-```
-
-* **fields**: Any field exposed for query. Resolve directly from source.
-* **computed**: Apply for virtual field which not present in source object or you want expose source object's methods.
-* **methods**: Any methods the model expose for query.
-
-There are 3 options to define field type describe above
-1. Let NextQL resolve field type. This is prefer option.
-2. Explicit assign model name.
-3. Inline nested fields.
-
-computed fields and methods automatically let NextQL resolve return type.
-
-### How NextQL decide field type?
-NextQL use a global **resolveType function** to resolve model name from object which by default use value constructor name for model name. 
-```js
-const defaultResolveType = value => value.constructor && value.constructor.name;
-```
-
-You can config your own **resolveType** or better use **afterResolveTypeHooks**. You free to choose whatever to resolve type from object. It could be mongoose model name, __type field ... 
-If resolveType return "Object" as model name, NextQL will fall back to default behavior: It only allow to query primitive field value. This behavior help you free from define unnecessary simple models.   
-
-## NextQL :heart: plugins
+## NextQL :heart: Plugins
 NextQL very simple and flexible. Everything could extensible/customize. NextQL follow Vue plugin pattern.
 
 ```js
@@ -373,23 +353,8 @@ async function run() {
 Combine beforeCreate hook and afterResolveType hook, you able to create any kind of NextQL schema and behaviors.
 
 
-
-## Why another GraphQL?
-Because I love GraphQL no kidding. It defined exactly data shape we want to query. It easy a pain to query hierarchical data. And it let you combine multiple datasource easily. So why not use GraphQL? because force me follow it's philosophy. 
-
-### Strong typed
-I believe it is waste of time in most of cases. As developer, we should focus to solve problems instead of spending time to fight with a type system. NextQL based on robust resolveType functions/hook. Basically it's ducking type system: whether it QUACKS-like-a duck, WALKS-like-a duck, it is a duck.
-
-### String based query and complex schema system.
-GraphQL has a steeper learning curve. It look like you study another language, remind me about SQL nightmare. Actually, a lot of GraphQL query/schema builder tools developed to solve the problem.
-
-NextQL is easier to learn and write. It is all about JSON/JS object. Beacuse of use pure JSON/JS objects, NextQL very robust. You can manipulate, customize, or mixins whatever you want.
-
-### Lazy failed.
-GraphQL not fail fast. It collect all errors into result. Well it's ok in some use cases. But it is noisy to parse GraphQL's list of errors and make decision how to deal with them. Most of time, you want fail fast. Fix it if your fault. Retry if system fault.
-
 ## Samples
-Please check samples folder. Yeah NextQL do **StarWar** too.
+* [StarWar](https://github.com/giapnguyen74/nextql/tree/master/samples/starwar)
 
 ## APIs
 
