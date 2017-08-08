@@ -37,6 +37,7 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 		- [use](#use)
 		- [beforeCreate](#beforecreate)
 		- [afterResolveType](#afterresolvetype)
+	- [Equivalent with GraphQL](#equivalent-with-graphql)
 	- [Testing](#testing)
 	- [Licensing](#licensing)
 
@@ -343,7 +344,6 @@ The JSON result should be
 }
 ```
 
-
 ## NextQL :heart: Plugins
 NextQL very simple and flexible. Everything could extensible/customize. NextQL follow Vue plugin pattern.
 
@@ -510,6 +510,11 @@ Register a hook called when NextQL try resolve type from source.
 ```js
 nextql.afterResolveType(source => modelName);
 ```
+
+## Equivalent with GraphQL
+Compare two version of getDie example, NextQL very close with GraphQL. Very easy to convert GraphQL code into NextQL.
+[getdie](images/getdie.png)
+
 
 ## Testing
 
