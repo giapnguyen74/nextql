@@ -1,12 +1,12 @@
 const NextQL = require("../../src");
 const nextql = new NextQL();
-import {
+const {
 	resolveType,
 	getFriends,
 	getHero,
 	getDroid,
 	getHuman
-} from "./starWarsData";
+} = require("./starWarsData");
 
 nextql.afterResolveType(resolveType);
 

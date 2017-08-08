@@ -46,12 +46,18 @@ test("getDie", function(done) {
 				}
 			}
 		})
-		.then(result => {
-			expect(result).toHaveProperty("RandomDie");
-			expect(result).toHaveProperty("RandomDie.getDie");
-			expect(result).toHaveProperty("RandomDie.getDie.rollOnce");
-			expect(result).toHaveProperty("RandomDie.getDie.roll");
+		.then(
+			result => {
+				expect(result).toHaveProperty("RandomDie");
+				expect(result).toHaveProperty("RandomDie.getDie");
+				expect(result).toHaveProperty("RandomDie.getDie.rollOnce");
+				expect(result).toHaveProperty("RandomDie.getDie.roll");
 
-			done();
-		});
+				done();
+			},
+			error => {
+				console.log(error);
+				done();
+			}
+		);
 });

@@ -1,30 +1,21 @@
-const { assertOk, isPlainObject } = require("./util");
 const { Model } = require("./model");
-const {execute_model,
-    execute_method, 
-    resolve_value, 
-    resolve_auto_type_value,
-    resolve_typed_value, 
-	resolve_no_type_value} = require('./resolvers');
-	
-const defaultFieldResolver = (value, fieldName) => value[fieldName];
+const { execute_model } = require("./resolvers");
+
 const defaultResolveType = value => value.constructor && value.constructor.name;
 
 class NextQL {
 	constructor(options = {}) {
 		this.aliasSeparator = options.aliasSeparator || "/";
-		this.defaultFieldResolver =
-			options.defaultFieldResolver || defaultFieldResolver;
 		this.resolveType = options.resolveType || defaultResolveType;
 
-		this.beforeCreateHooks = [];
 		this.models = {};
+		this.beforeCreateHooks = [];
 		this.afterResolveTypeHooks = [];
+		this.beforeExecuteHooks = [];
 	}
 
 	model(name, options) {
 		if (!options) {
-			assertOk(this.models[name], "no-model: " + name, 400);
 			return this.models[name];
 		}
 
@@ -36,17 +27,35 @@ class NextQL {
 	}
 
 	execute(query, context) {
-		assertOk(isPlainObject(query), "invalid query", 400);
+		if (!(query instanceof Object)) {
+			return Promise.reject({
+				error: "Invalid query"
+			});
+		}
+
+		let check;
+		this.beforeExecuteHooks.forEach(hook => (check = hook(query) || check));
+		if (check != undefined) {
+			return Promise.reject({
+				messsage: check,
+				error: "Invalid query"
+			});
+		}
 
 		let result = {};
-
 		return Promise.all(
 			Object.keys(query).map(path => {
-				const modelName = path.split(this.aliasSeparator, 1)[0];
-				return execute_model(this, modelName, query[path], context, {
-					result,
-					path: [path]
-				});
+				//const modelName = path.split(this.aliasSeparator, 1)[0];
+				return execute_model(
+					this,
+					path,
+					query[path],
+					{
+						result,
+						path: [path]
+					},
+					context
+				);
 			})
 		).then(() => result);
 	}
@@ -66,6 +75,10 @@ class NextQL {
 
 	beforeCreate(hook) {
 		this.beforeCreateHooks.push(hook);
+	}
+
+	beforeExecute(hook) {
+		this.beforeExecuteHooks.push(hook);
 	}
 }
 

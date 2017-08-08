@@ -157,7 +157,7 @@ it("Allows us to create a generic query, then pass an invalid ID to get null bac
 			}
 		}
 	};
-	const result = await nextql.execute(query);
+	const result = await nextql.execute(query).catch(console.log);
 	expect(result).toMatchObject({
 		human: {
 			human: null
