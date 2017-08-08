@@ -1,6 +1,6 @@
 {
 	"name": "nextql",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "Yet Another Data Query Language. Equivalent GraphQL but much more simple.",
 	"homepage": "https://github.com/giapnguyen74/nextql",
 	"author": {
@@ -8,9 +8,15 @@
 		"email": "giapnguyen74@gmail.com",
 		"url": "https://www.linkedin.com/in/giap-nguyen-cehv8-mcse-lcp-0359b513"
 	},
-	"files": ["lib"],
+	"files": [
+		"lib"
+	],
 	"main": "lib/index.js",
-	"keywords": ["nextql", "graphql", "api"],
+	"keywords": [
+		"nextql",
+		"graphql",
+		"api"
+	],
 	"devDependencies": {
 		"babel-cli": "^6.24.1",
 		"babel-core": "^6.25.0",
