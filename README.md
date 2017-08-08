@@ -1,5 +1,5 @@
 ![nextql logo](images/nextql.png)
-# NextQL 
+# 1. NextQL 
 
 NextQL is JSON query language for APIs and a robust and extensible runtime for resolve those queries.
 
@@ -12,8 +12,42 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 3. No limitation how to define type systems.
 4. No limitation how to resolve requests.
 
-## Change Logs
-### 0.0.3 (08-08-2017)
+## 1.1. TOC
+<!-- TOC -->
+
+- [1. NextQL](#1-nextql)
+	- [1.1. TOC](#11-toc)
+	- [1.2. Change Logs](#12-change-logs)
+		- [1.2.1. (08-08-2017)](#121-08-08-2017)
+	- [1.3. Install](#13-install)
+	- [1.4. Plugins](#14-plugins)
+	- [1.5. Introduction to NextQL](#15-introduction-to-nextql)
+	- [1.6. Type System](#16-type-system)
+		- [1.6.1. Complex type define](#161-complex-type-define)
+	- [1.7. How NextQL decide field/method type?](#17-how-nextql-decide-fieldmethod-type)
+	- [1.8. Query](#18-query)
+		- [1.8.1. Arguments](#181-arguments)
+		- [1.8.2. Alias](#182-alias)
+		- [1.8.3. Traverse related object](#183-traverse-related-object)
+	- [1.9. NextQL :heart: Plugins](#19-nextql-heart-plugins)
+	- [1.10. Samples](#110-samples)
+	- [1.11. APIs](#111-apis)
+		- [1.11.1. execute](#1111-execute)
+		- [1.11.2. model](#1112-model)
+		- [1.11.3. use](#1113-use)
+		- [1.11.4. beforeCreate](#1114-beforecreate)
+		- [1.11.5. afterResolveType](#1115-afterresolvetype)
+	- [1.12. Testing](#112-testing)
+	- [1.13. Developing](#113-developing)
+		- [1.13.1. Building](#1131-building)
+		- [1.13.2. Deploying / Publishing](#1132-deploying--publishing)
+	- [1.14. Features](#114-features)
+	- [1.15. Licensing](#115-licensing)
+
+<!-- /TOC -->
+
+## 1.2. Change Logs
+### 1.2.1. (08-08-2017)
 * Support explicit type defines for methods and computed fields.
 * Remove Object typed behavior.
 * Introduce new type define: Scalar
@@ -21,20 +55,20 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 * Better error messages.
 * Back compatible with 0.0.2 except Object typed behavior.
 
-## Install
+## 1.3. Install
 Install NextQL from npm
 
 ```sh
 npm install --save nextql
 ```
-## Plugins
+## 1.4. Plugins
 * [nextql-validate](https://github.com/giapnguyen74/nextql-validate) : Validate nextql methods with fastest-validator.
 * [nextql-feathers](https://github.com/giapnguyen74/nextql-feathers) : Extend NextQL with awesome Feathersjs service. NextQL could do real-time/multiple backend/authentication.
 
-## Introduction to NextQL
+## 1.5. Introduction to NextQL
 NextQL is simply a data query engine inspired by [Facebook GraphQL](http://graphql.org/) but much more simple. NextQL consists a type system based on pure JS objects and a JSON query language.
 
-## Type System
+## 1.6. Type System
 For example a User model:
 ```js
 {
@@ -80,12 +114,13 @@ Every model configuration may have 4 keys:
 **fields** and **computed** equivalent with GraphQL's fields; **methods** and **returns** equivalent with GraphQL's queries and mutations.
 
 Different with GraphQL, NextQL not enforced strong-typed for field and method values rather use "ducking type system". You have many options for define how to resolve value type:
-* **1** : let NextQL decide value type. [How NextQL decide field/method type?](###How NextQL decide field/method type?)
+* **1** : let NextQL decide value type. [How NextQL decide field/method type?](#how-nextql-decide-fieldmethod-type)
 * **"other model name"** : explicit assign value type.
 * **"*"** : explicit assign value as scalar value.
 * **[Object]** : explicit define value as inline nested type
 * **[Function]** : Given a function, NextQL should call to resolve value type.
 
+### 1.6.1. Complex type define
 Combine all those options, you can define very complex model. For example:
 ```js
 test("execute#super_complex_inline_type", async function() {
@@ -166,7 +201,7 @@ test("execute#super_complex_inline_type", async function() {
 ```
 
 
-## How NextQL decide field/method type?
+## 1.7. How NextQL decide field/method type?
 NextQL use a global **resolveType function** to resolve model name from 
 object which by default use value constructor name for model name. 
 ```js
@@ -176,7 +211,7 @@ const defaultResolveType = value => value.constructor && value.constructor.name;
 You can config your own **resolveType** or better use **afterResolveTypeHooks**. You free to choose whatever to resolve type from object. It could be mongoose model name, __type field ... 
  
 
-## Query
+## 1.8. Query
 NextQL query is a JSON object define what API methods called and what data to return. NextQL will start to resolve query follow order: model -> method -> fields -> ... recursive fields -> final result.
 
 For example the query
@@ -206,7 +241,7 @@ Equivalent call **me** method of class **user** then pick **fullName** field fro
 /user/me => { fullName }
 ```
 
-### Arguments
+### 1.8.1. Arguments
 NextQL allow pass arguments to methods and computed fields via reserved **$params** field.
 
 ```json
@@ -235,7 +270,7 @@ Could produce the JSON result:
 }
 ```
 
-### Alias
+### 1.8.2. Alias
 Because result field match with query field. If you need call multiple methods, fields you need alias. NextQL alias is a suffix separator which resolver ignore.
 ```json
 {
@@ -268,7 +303,7 @@ Could produce the JSON result:
 
 By default **"/"** is alias separator, anything after it doesn't counted. You could config any suffix separator.
 
-### Traverse related object
+### 1.8.3. Traverse related object
 You can ask more data from relate objects. 
 
 ```json
@@ -313,7 +348,7 @@ The JSON result should be
 ```
 
 
-## NextQL :heart: Plugins
+## 1.9. NextQL :heart: Plugins
 NextQL very simple and flexible. Everything could extensible/customize. NextQL follow Vue plugin pattern.
 
 ```js
@@ -433,12 +468,12 @@ async function run() {
 Combine beforeCreate hook and afterResolveType hook, you able to create any kind of NextQL schema and behaviors.
 
 
-## Samples
+## 1.10. Samples
 * [StarWar](https://github.com/giapnguyen74/nextql/tree/master/samples/starwar)
 
-## APIs
+## 1.11. APIs
 
-### execute
+### 1.11.1. execute
 Execute query.
 ```js
 nextql.execute(query, context).then(
@@ -447,7 +482,7 @@ nextql.execute(query, context).then(
 );
 ```
 
-### model
+### 1.11.2. model
 Register new model
 ```js
 nextql.model('name', { 
@@ -462,25 +497,25 @@ Lookup model throw execption if not found
 nextql.model('name')
 ```
 
-### use
+### 1.11.3. use
 Register plugin
 ```js
 nextql.use(pluginObj, pluginOpts);
 ```
 
-### beforeCreate
+### 1.11.4. beforeCreate
 Register a hook called when new model added. Allow you manipulate model options.
 ```js
 nextql.beforeCreate(options => options);
 ```
 
-### afterResolveType
+### 1.11.5. afterResolveType
 Register a hook called when NextQL try resolve type from source. 
 ```js
 nextql.afterResolveType(source => modelName);
 ```
 
-## Testing
+## 1.12. Testing
 
 ```
  PASS  test/resolvers.test.js
@@ -508,17 +543,17 @@ All files         |    95.26 |    92.63 |    90.91 |    96.15 |                |
 ------------------|----------|----------|----------|----------|----------------|
 ```
 
-## Developing
+## 1.13. Developing
 
 
-### Building
+### 1.13.1. Building
 
 
-### Deploying / Publishing
+### 1.13.2. Deploying / Publishing
 
 
-## Features
+## 1.14. Features
 
-## Licensing
+## 1.15. Licensing
 
 "The code in this project is licensed under MIT license."
