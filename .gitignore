@@ -1,3 +1,5 @@
 node_modules
 coverage
 benchmark
+lib
+package-lock.json

@@ -2,6 +2,11 @@
 # NextQL 
 
 NextQL is JSON query language for APIs and a robust and extensible runtime for resolve those queries.
+
+[![npm version](https://badge.fury.io/js/nextql.svg)](http://badge.fury.io/js/nextql)
+[![Build Status](https://travis-ci.org/nextql/nextql.svg?branch=master)](https://travis-ci.org/nextql/nextql.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/graphql/nextql/badge.svg?branch=master)](https://coveralls.io/repos/graphql/nextql/badge.svg?branch=master)
+
 1. Ask what you need, get exactly that. 
 2. Get many resource by a single request.
 3. No limitation how to define type system.
@@ -423,28 +428,31 @@ nextql.afterResolveType(source => modelName);
 
 ## Testing
 
-Test Suites: 6 passed, 6 total
+```
+ PASS  test/resolvers.test.js
+ PASS  samples/starwar/starwar.test.js
+ PASS  test/nextql.test.js
+ PASS  test/getDie.test.js
 
-Tests:       35 passed, 35 total
-
+Test Suites: 4 passed, 4 total
+Tests:       55 passed, 55 total
 Snapshots:   0 total
-
-Time:        0.523s, estimated 1s
-
+Time:        0.539s, estimated 1s
 Ran all test suites.
-
-
+------------------|----------|----------|----------|----------|----------------|
 File              |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
 ------------------|----------|----------|----------|----------|----------------|
-All files         |    96.03 |    90.14 |    97.56 |    97.16 |                |
- samples/starwar  |    88.57 |       75 |    85.71 |     87.5 |                |
-  starWarsData.js |    90.48 |       75 |    85.71 |    88.89 |        104,121 |
-  starwar.js      |    85.71 |      100 |      100 |    85.71 |          30,60 |
- src              |    98.28 |    92.06 |      100 |      100 |                |
-  index.js        |    97.56 |    88.37 |      100 |      100 |11,66,87,90,110 |
-  model.js        |      100 |      100 |      100 |      100 |                |
+All files         |    95.26 |    92.63 |    90.91 |    96.15 |                |
+ samples/starwar  |    90.24 |       75 |    85.71 |    89.47 |                |
+  starWarsData.js |    92.31 |       75 |    85.71 |     91.3 |        104,121 |
+  starwar.js      |    86.67 |      100 |      100 |    86.67 |          30,60 |
+ src              |    96.64 |    94.25 |    91.89 |    97.92 |                |
+  index.js        |    91.43 |    82.35 |    83.33 |    93.75 |          39,81 |
+  model.js        |    93.75 |    92.86 |    85.71 |    96.77 |             18 |
+  resolvers.js    |      100 |    98.15 |      100 |      100 |             53 |
   util.js         |      100 |      100 |      100 |      100 |                |
-
+------------------|----------|----------|----------|----------|----------------|
+```
 
 ## Developing
 
