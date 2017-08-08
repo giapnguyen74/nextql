@@ -7,10 +7,10 @@ const {
 	resolve_value,
 	resolve_type_define,
 	execute_method,
-	execute_model,
-	NO_MODEL,
-	INVALID_MODEL
+	execute_model
 } = require("../src/resolvers");
+
+const { NextQLError } = require("../src/util");
 
 class Test {
 	constructor(options) {
@@ -24,7 +24,7 @@ test("resolve_type_define#resolve_def_auto", function() {
 	expect(resolve_type_define(nextql, undefined, 1, ["a"])).toBe("*");
 	expect(resolve_type_define(nextql, 1, 1, ["a"])).toBe("*");
 	expect(resolve_type_define(nextql, {}, def, ["a"])).toBeInstanceOf(
-		NO_MODEL
+		NextQLError
 	);
 });
 
@@ -33,19 +33,19 @@ test("resolve_type_define#resolve_def_function", function() {
 		return "abc";
 	};
 	expect(resolve_type_define(nextql, "a", def, ["a"])).toBeInstanceOf(
-		NO_MODEL
+		NextQLError
 	);
 	expect(resolve_type_define(nextql, {}, def, ["a"])).toBeInstanceOf(
-		NO_MODEL
+		NextQLError
 	);
 });
 
 test("resolve_type_define#resolve_def_string", function() {
 	expect(resolve_type_define(nextql, "a", "abc", ["a"])).toBeInstanceOf(
-		NO_MODEL
+		NextQLError
 	);
 	expect(resolve_type_define(nextql, {}, "abc", ["a"])).toBeInstanceOf(
-		NO_MODEL
+		NextQLError
 	);
 });
 
@@ -56,12 +56,12 @@ test("resolve_type_define#resolve_def_scalar", function() {
 
 test("resolve_type_define#invalid_model", function() {
 	expect(resolve_type_define(nextql, "a", undefined, ["a"])).toBeInstanceOf(
-		INVALID_MODEL
+		NextQLError
 	);
 
 	expect(
 		resolve_type_define(nextql, "a", () => undefined, ["a"])
-	).toBeInstanceOf(INVALID_MODEL);
+	).toBeInstanceOf(NextQLError);
 });
 
 test("resolve_scalar_value#scalar_as_scalar", async function() {
@@ -120,12 +120,7 @@ test("resolve_scalar_value#query_as_object", async function() {
 		{},
 		{ a: 1 },
 		{ result, path: "a.b" }
-	).catch(err => {
-		expect(err).toMatchObject({
-			error: "Cannot query scalar as object",
-			path: "a.b"
-		});
-	});
+	).catch(err => expect(err).toBeInstanceOf(NextQLError));
 });
 
 test("resolve_object_value#simple_object_simple_query", async function() {
@@ -153,13 +148,7 @@ test("resolve_object_value#complex_object_invalid_query", async function() {
 		model,
 		{ a: 1, b: { c: 1 } },
 		{ result, path: ["root"] }
-	).catch(err =>
-		expect(err).toMatchObject({
-			error: "No field",
-			field: "b",
-			model: "test"
-		})
-	);
+	).catch(err => expect(err).toBeInstanceOf(NextQLError));
 });
 
 test("resolve_object_value#complex_object_inline_query", async function() {
@@ -184,12 +173,7 @@ test("resolve_value#invalid_model", async function() {
 		"dafd",
 		{ a: 1, b: { c: 1 } },
 		{ result, path: ["root"] }
-	).catch(err =>
-		expect(err).toMatchObject({
-			message: "Model not found",
-			model: "dafd"
-		})
-	);
+	).catch(err => expect(err).toBeInstanceOf(NextQLError));
 
 	await resolve_value(
 		nextql,
@@ -197,12 +181,7 @@ test("resolve_value#invalid_model", async function() {
 		1,
 		{ a: 1, b: { c: 1 } },
 		{ result, path: ["root"] }
-	).catch(err =>
-		expect(err).toMatchObject({
-			message: "Model not found",
-			model: "Object"
-		})
-	);
+	).catch(err => expect(err).toBeInstanceOf(NextQLError));
 });
 
 test("resolve_value#array_value_object_model", async function() {
@@ -445,12 +424,7 @@ test("execute_model#invalid model", async function() {
 			result,
 			path: ["root"]
 		}
-	).catch(err =>
-		expect(err).toMatchObject({
-			message: "Model not defined",
-			path: "root"
-		})
-	);
+	).catch(err => expect(err).toBeInstanceOf(NextQLError));
 });
 
 test("execute_model#method_predefine_return_array_object", async function() {
@@ -737,12 +711,7 @@ test("resolve_scalar_value#error", async function() {
 	await resolve_scalar_value(nextql, () => true, 1, {
 		result,
 		path: ["root", "x"]
-	}).catch(err =>
-		expect(err).toMatchObject({
-			error: "Cannot serialize return value",
-			path: "root.x"
-		})
-	);
+	}).catch(err => expect(err).toBeInstanceOf(NextQLError));
 });
 
 test("execute_model#throw_exception_method", async function() {
@@ -832,13 +801,7 @@ test("execute_model#invalid_method", async function() {
 			result,
 			path: ["root"]
 		}
-	).catch(err =>
-		expect(err).toMatchObject({
-			error: "No method",
-			method: "test2",
-			model: "Test"
-		})
-	);
+	).catch(err => expect(err).toBeInstanceOf(NextQLError));
 });
 
 test("execute_model#throw_exception_computed", async function() {
@@ -928,12 +891,5 @@ test("execute_model#no_inline_field", async function() {
 			result,
 			path: ["root"]
 		}
-	).catch(err =>
-		expect(err).toMatchObject({
-			error: "No field",
-			field: "d",
-			model: "$inline",
-			path: "root.test.0.b.d"
-		})
-	);
+	).catch(err => expect(err).toBeInstanceOf(NextQLError));
 });

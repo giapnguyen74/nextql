@@ -1,22 +1,6 @@
 const { InlineModel } = require("./model");
-const { isPrimitive, joinPath } = require("./util");
+const { isPrimitive, NextQLError } = require("./util");
 const set = require("lodash.set");
-
-class NO_MODEL {
-	constructor(model, path) {
-		this.message = "Model not found";
-		this.model = model;
-		this.path = joinPath(path);
-	}
-}
-
-class INVALID_MODEL {
-	constructor(modeDef, path) {
-		this.message = "Cannot resolve model";
-		this.define = modeDef;
-		this.path = joinPath(path);
-	}
-}
 
 function info_append_path(info, path) {
 	return Object.assign({}, info, {
@@ -37,7 +21,10 @@ function resolve_type_define(nextql, fieldValue, fieldDefine, fieldPath) {
 	let fieldModel;
 
 	if (fieldDefine == undefined) {
-		return new INVALID_MODEL(fieldDefine, fieldPath);
+		return new NextQLError(
+			"Cannot resolve model: " + JSON.stringify(fieldDefine),
+			{ path: fieldPath }
+		);
 	}
 
 	if (fieldDefine.constructor && fieldDefine.constructor == Object) {
@@ -64,7 +51,10 @@ function resolve_type_define(nextql, fieldValue, fieldDefine, fieldPath) {
 	}
 
 	if (fieldModel == undefined) {
-		return new INVALID_MODEL(fieldDefine, fieldPath);
+		return new NextQLError(
+			"Cannot resolve model: " + JSON.stringify(fieldDefine),
+			{ path: fieldPath }
+		);
 	}
 
 	//scalar field
@@ -74,7 +64,9 @@ function resolve_type_define(nextql, fieldValue, fieldDefine, fieldPath) {
 
 	const model = nextql.model(fieldModel);
 	if (!model) {
-		return new NO_MODEL(fieldModel, fieldPath);
+		return new NextQLError("Model not found: " + fieldModel, {
+			path: fieldPath
+		});
 	}
 
 	return model;
@@ -97,10 +89,9 @@ function resolve_scalar_value(nextql, value, valueQuery, info) {
 		const keylen = Object.keys(valueQuery).length;
 		const queryAsObject = valueQuery.$params ? keylen > 1 : keylen > 0;
 		if (queryAsObject) {
-			return Promise.reject({
-				error: "Cannot query scalar as object",
-				path: joinPath(info.path)
-			});
+			return Promise.reject(
+				new NextQLError("Cannot query scalar as object", info)
+			);
 		}
 	}
 
@@ -114,10 +105,9 @@ function resolve_scalar_value(nextql, value, valueQuery, info) {
 		set(info.result, info.path, JSON.parse(JSON.stringify(value)));
 		return Promise.resolve();
 	} catch (e) {
-		return Promise.reject({
-			error: "Cannot serialize return value",
-			path: joinPath(info.path)
-		});
+		return Promise.reject(
+			new NextQLError("Cannot serialize return value", info)
+		);
 	}
 }
 
@@ -198,7 +188,7 @@ function resolve_value(nextql, value, modelDef, valueQuery, info, context) {
 
 	const valueModel = resolve_type_define(nextql, value, modelDef, info.path);
 
-	if (valueModel instanceof NO_MODEL || valueModel instanceof INVALID_MODEL) {
+	if (valueModel instanceof NextQLError) {
 		return Promise.reject(valueModel);
 	}
 
@@ -241,10 +231,9 @@ function execute_method(nextql, model, methodPath, methodQuery, info, context) {
 function execute_model(nextql, modelName, modelQuery, info, context) {
 	const model = nextql.model(modelName);
 	if (!model) {
-		return Promise.reject({
-			message: "Model not defined",
-			path: joinPath(info.path)
-		});
+		return Promise.reject(
+			new NextQLError("Model not defined: " + modelName, info)
+		);
 	}
 
 	return Promise.all(
@@ -267,7 +256,5 @@ module.exports = {
 	resolve_value,
 	resolve_type_define,
 	execute_method,
-	execute_model,
-	NO_MODEL,
-	INVALID_MODEL
+	execute_model
 };

@@ -1,4 +1,4 @@
-const { joinPath } = require("./util");
+const { NextQLError } = require("./util");
 function mergeOptions(model, options) {
 	model.fields = Object.assign({}, model.fields, options.fields);
 	model.computed = Object.assign({}, model.computed, options.computed);
@@ -22,12 +22,9 @@ class Model {
 
 	call(methodName, params = {}, context = {}, info) {
 		if (!this.methods[methodName]) {
-			return Promise.reject({
-				error: "No method",
-				method: methodName,
-				model: this.name,
-				path: joinPath(info.path)
-			});
+			return Promise.reject(
+				new NextQLError(`No method: ${this.name}.${methodName}`, info)
+			);
 		}
 
 		try {
@@ -57,12 +54,9 @@ class Model {
 		if (this.fields[fieldName]) {
 			return Promise.resolve(value[fieldName]);
 		} else {
-			return Promise.reject({
-				error: "No field",
-				field: fieldName,
-				model: this.name,
-				path: joinPath(info.path)
-			});
+			return Promise.reject(
+				new NextQLError(`No field: ${this.name}.${fieldName}`, info)
+			);
 		}
 	}
 }
@@ -77,12 +71,9 @@ class InlineModel {
 		if (this.fields[fieldName]) {
 			return Promise.resolve(value[fieldName]);
 		} else {
-			return Promise.reject({
-				error: "No field",
-				field: fieldName,
-				model: "$inline",
-				path: joinPath(info.path)
-			});
+			return Promise.reject(
+				new NextQLError(`No field: ${this.name}.${fieldName}`, info)
+			);
 		}
 	}
 }
