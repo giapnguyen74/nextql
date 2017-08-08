@@ -513,7 +513,7 @@ nextql.afterResolveType(source => modelName);
 ```
 
 ## Equivalent with GraphQL
-Compare two version of getDie example, NextQL very close with GraphQL. Very easy to convert GraphQL code into NextQL.
+Compare two version of [getDie example](http://graphql.org/graphql-js/object-types/), NextQL very close with GraphQL. Very easy to convert GraphQL code into NextQL.
 ![getdie](images/getdie.png)
 
 
