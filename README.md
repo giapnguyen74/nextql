@@ -83,8 +83,88 @@ Different with GraphQL, NextQL not enforced strong-typed for field and method va
 * **1** : let NextQL decide value type. [How NextQL decide field/method type?](###How NextQL decide field/method type?)
 * **"other model name"** : explicit assign value type.
 * **"*"** : explicit assign value as scalar value.
-* **[Object]** : explicit define value as nested type
+* **[Object]** : explicit define value as inline nested type
 * **[Function]** : Given a function, NextQL should call to resolve value type.
+
+Combine all those options, you can define very complex model. For example:
+```js
+test("execute#super_complex_inline_type", async function() {
+	// auto resolve for hello field
+	nextql.afterResolveType(source => (source.a == "x" ? "Test" : undefined));
+
+	nextql.model("Test", {
+		fields: { a: 1, b: { c: 1, d: { x: 1, y: "Test" } } }, // nested of nested with recusive type
+		computed: {
+			hello() {
+				return [{ a: "x" }];
+			}
+		},
+		returns: {
+			// function resolve for test method
+			test: () => "Test"
+		},
+		methods: {
+			test(params) {
+				return [
+					{
+						a: "a",
+						b: {
+							c: params.x,
+							d: { x: "22", y: { a: "super nest" } }
+						}
+					}
+				];
+			}
+		}
+	});
+	const result = await nextql.execute({
+		Test: {
+			test: {
+				$params: { x: 1 },
+				a: 1,
+
+				b: {
+					c: 1,
+					d: {
+						x: 1,
+						y: {
+							a: 1
+						}
+					}
+				},
+				hello: {
+					a: 1
+				}
+			}
+		}
+	});
+
+	expect(result).toMatchObject({
+		Test: {
+			test: [
+				{
+					a: "a",
+					b: {
+						c: 1,
+						d: {
+							x: "22",
+							y: {
+								a: "super nest"
+							}
+						}
+					},
+					hello: [
+						{
+							a: "x"
+						}
+					]
+				}
+			]
+		}
+	});
+});
+```
+
 
 ## How NextQL decide field/method type?
 NextQL use a global **resolveType function** to resolve model name from 

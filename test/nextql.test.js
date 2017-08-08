@@ -142,3 +142,77 @@ test("execute#invalid_query", async function() {
 		.execute(1)
 		.catch(err => expect(err).toMatchObject({ error: "Invalid query" }));
 });
+
+test("execute#super_complex_inline_type", async function() {
+	nextql.afterResolveType(source => (source.a == "x" ? "Test" : undefined));
+
+	nextql.model("Test", {
+		fields: { a: 1, b: { c: 1, d: { x: 1, y: "Test" } } },
+		computed: {
+			hello() {
+				return [{ a: "x" }];
+			}
+		},
+		returns: {
+			test: () => "Test"
+		},
+		methods: {
+			test(params) {
+				return [
+					{
+						a: "a",
+						b: {
+							c: params.x,
+							d: { x: "22", y: { a: "super nest" } }
+						}
+					}
+				];
+			}
+		}
+	});
+	const result = await nextql.execute({
+		Test: {
+			test: {
+				$params: { x: 1 },
+				a: 1,
+
+				b: {
+					c: 1,
+					d: {
+						x: 1,
+						y: {
+							a: 1
+						}
+					}
+				},
+				hello: {
+					a: 1
+				}
+			}
+		}
+	});
+
+	expect(result).toMatchObject({
+		Test: {
+			test: [
+				{
+					a: "a",
+					b: {
+						c: 1,
+						d: {
+							x: "22",
+							y: {
+								a: "super nest"
+							}
+						}
+					},
+					hello: [
+						{
+							a: "x"
+						}
+					]
+				}
+			]
+		}
+	});
+});
