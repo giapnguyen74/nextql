@@ -12,6 +12,15 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 3. No limitation how to define type system.
 4. No limitation how to resolve request
 
+## Change Logs
+### 0.0.3 (08-08-2017)
+* Support explicit type defines for methods and computed fields.
+* Remove Object typed behavior.
+* Introduce new type define: Scalar
+* New beforeExecute hook
+* Better error messages.
+* Back compatible with 0.0.2 except Object typed behavior.
+
 ## Install
 Install NextQL from npm
 
