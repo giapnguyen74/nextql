@@ -39,6 +39,7 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 		- [afterResolveType](#afterresolvetype)
 	- [Equivalent with GraphQL](#equivalent-with-graphql)
 	- [Testing](#testing)
+	- [Benchmarks](#benchmarks)
 	- [Licensing](#licensing)
 
 <!-- /TOC -->
@@ -212,7 +213,7 @@ You can config your own **resolveType** or better use **afterResolveTypeHooks**.
 NextQL query is a JSON object define what API methods called and what data to return. NextQL will start to resolve query follow order: model -> method -> fields -> ... recursive fields -> final result.
 
 For example the query
-```json
+```js
 {
     "user": { // model
         "me": { // method
@@ -513,7 +514,7 @@ nextql.afterResolveType(source => modelName);
 
 ## Equivalent with GraphQL
 Compare two version of getDie example, NextQL very close with GraphQL. Very easy to convert GraphQL code into NextQL.
-[getdie](images/getdie.png)
+![getdie](images/getdie.png)
 
 
 ## Testing
@@ -543,6 +544,16 @@ All files         |    95.26 |    92.63 |    90.91 |    96.15 |                |
   util.js         |      100 |      100 |      100 |      100 |                |
 ------------------|----------|----------|----------|----------|----------------|
 ```
+
+## Benchmarks
+```
+node benchmark/index.js
+nextql#getDie x 42,284 ops/sec ±0.44% (84 runs sampled)
+graphql#getDie x 9,713 ops/sec ±4.18% (78 runs sampled)
+Fastest is nextql#getDie
+```
+Without type checked and parse query string, NextQL significantly faster than GraphQL.
+
 
 ## Licensing
 
