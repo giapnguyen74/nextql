@@ -33,10 +33,10 @@ class NextQL {
 			});
 		}
 
-		let check;
-		this.beforeExecuteHooks.forEach(hook => (check = hook(query) || check));
-		if (check instanceof Error) {
-			return Promise.reject(check);
+		let error;
+		this.beforeExecuteHooks.forEach(hook => (error = hook(query) || error));
+		if (error) {
+			return Promise.reject(new Error(error));
 		}
 
 		let result = {};

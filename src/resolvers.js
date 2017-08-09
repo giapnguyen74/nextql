@@ -128,6 +128,17 @@ function resolve_object_value(
 	info,
 	context
 ) {
+	if (value == undefined) {
+		set(info.result, info.path, null);
+		return Promise.resolve();
+	}
+
+	if (isPrimitive(value)) {
+		return Promise.reject(
+			new NextQLError("Cannot query scalar as " + valueModel.name, info)
+		);
+	}
+
 	return Promise.all(
 		Object.keys(valueQuery).map(path => {
 			if (path == "$params") return;

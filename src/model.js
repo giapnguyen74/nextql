@@ -65,6 +65,7 @@ class InlineModel {
 	constructor(fields) {
 		this.fields = fields;
 		this.computed = {};
+		this.name = "$inline";
 	}
 
 	get(value, fieldName, params, context, info) {
