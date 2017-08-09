@@ -1,7 +1,7 @@
 ![nextql logo](images/nextql.png)
 # NextQL 
 
-NextQL is JSON query language for APIs and a robust and extensible runtime for resolve those queries.
+NextQL is JSON query language for APIs and a robust and extensible runtime for resolve those queries. [Equivalent](#equivalent-with-graphql) with [Facebook's GraphQL](http://graphql.org/), but much more simple.
 
 [![npm version](https://badge.fury.io/js/nextql.svg)](http://badge.fury.io/js/nextql)
 [![Build Status](https://travis-ci.org/nextql/nextql.svg?branch=master)](https://travis-ci.org/nextql/nextql.svg?branch=master)
@@ -514,7 +514,8 @@ nextql.afterResolveType(source => modelName);
 ```
 
 ## Equivalent with GraphQL
-Compare two version of [getDie example](http://graphql.org/graphql-js/object-types/), NextQL very close with GraphQL. Very easy to convert GraphQL code into NextQL.
+Compare two version of [getDie example](http://graphql.org/graphql-js/object-types/), NextQL very close with GraphQL. Very easy to convert GraphQL code into NextQL. NextQL's [StarWar](https://github.com/giapnguyen74/nextql/tree/master/samples/starwar) reuse most of GraphQL sample code execpt model's definition.
+
 ![getdie](images/getdie.png)
 
 
