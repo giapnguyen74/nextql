@@ -3,9 +3,7 @@
 
 NextQL is JSON query language for APIs and a robust and extensible runtime for resolve those queries. [Equivalent](#equivalent-with-graphql) with [Facebook's GraphQL](http://graphql.org/), but much more simple.
 
-[![npm version](https://badge.fury.io/js/nextql.svg)](http://badge.fury.io/js/nextql)
-[![Build Status](https://travis-ci.org/nextql/nextql.svg?branch=master)](https://travis-ci.org/nextql/nextql.svg?branch=master)
-[![Coverage Status](https://coveralls.io/repos/graphql/nextql/badge.svg?branch=master)](https://coveralls.io/repos/graphql/nextql/badge.svg?branch=master)
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 
 1. Ask what you need, get exactly that. 
 2. Get many resources by a single request.
@@ -560,3 +558,11 @@ Without type checked and parse query string, NextQL significantly faster than Gr
 ## Licensing
 
 "The code in this project is licensed under MIT license."
+
+
+[npm-image]: https://badge.fury.io/js/nextql.svg
+[npm-url]: https://npmjs.org/package/nextql
+[travis-image]: https://travis-ci.org/giapnguyen74/nextql.svg?branch=master
+[travis-url]: https://travis-ci.org/giapnguyen74/nextql
+[daviddm-image]: https://david-dm.org/giapnguyen74/nextql.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/giapnguyen74/nextql
