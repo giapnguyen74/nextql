@@ -35,11 +35,8 @@ class NextQL {
 
 		let check;
 		this.beforeExecuteHooks.forEach(hook => (check = hook(query) || check));
-		if (check != undefined) {
-			return Promise.reject({
-				messsage: check,
-				error: "Invalid query"
-			});
+		if (check instanceof Error) {
+			return Promise.reject(check);
 		}
 
 		let result = {};
