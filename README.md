@@ -62,6 +62,7 @@ npm install --save nextql
 ## Plugins
 * [nextql-validate](https://github.com/giapnguyen74/nextql-validate) : Validate nextql methods with fastest-validator.
 * [nextql-feathers](https://github.com/giapnguyen74/nextql-feathers) : Extend NextQL with awesome Feathersjs service. NextQL could do real-time/multiple backend/authentication.
+* [nextql-limit](https://github.com/giapnguyen74/nextql-limit) : Simple solution to protect against excessive or abusive calls (DoS)
 
 ## Introduction to NextQL
 NextQL is simply a data query engine inspired by [Facebook GraphQL](http://graphql.org/) but much more simple. NextQL consists a type system based on pure JS objects and a JSON query language.
