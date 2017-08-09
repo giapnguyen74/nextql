@@ -99,7 +99,7 @@ test("resolve_scalar_value#object_as_scalar", async function() {
 		nextql,
 		{ a: 1, b: { c: 1 }, d: () => true },
 		1,
-		{ result, path: "a.b" }
+		{ result, path: ["a", "b"] }
 	);
 	expect(result).toMatchObject({
 		a: {

@@ -1,6 +1,22 @@
 const { InlineModel } = require("./model");
 const { isPrimitive, NextQLError } = require("./util");
-const set = require("lodash.set");
+//const set = require("lodash.set");
+
+function set(obj, path, value) {
+	const len = path.length - 1;
+	let node = obj;
+	for (let i = 0; i < len; i++) {
+		if (node[path[i]] == undefined) {
+			if (Number.isInteger(path[i + 1])) {
+				node[path[i]] = [];
+			} else {
+				node[path[i]] = {};
+			}
+		}
+		node = node[path[i]];
+	}
+	node[path[len]] = value;
+}
 
 function info_append_path(info, path) {
 	return Object.assign({}, info, {
