@@ -893,3 +893,178 @@ test("execute_model#no_inline_field", async function() {
 		}
 	).catch(err => expect(err).toBeInstanceOf(NextQLError));
 });
+
+test("execute_model#method_return_undefined", async function() {
+	let result = {};
+
+	nextql.model("Test", {
+		fields: { a: 1, b: { c: 1 }, hello: () => "*" },
+		computed: {
+			hello() {
+				return undefined;
+			}
+		},
+		returns: {
+			test: () => "Test"
+		},
+		methods: {
+			test(params) {
+				return undefined;
+			}
+		}
+	});
+	await execute_model(
+		nextql,
+		"Test",
+		{ test: { a: 1, b: { d: 1 }, hello: 1 } },
+		{
+			result,
+			path: ["root"]
+		}
+	);
+	expect(result).toMatchObject({
+		root: { test: null }
+	});
+});
+
+test("execute_model#computed_return_undefined", async function() {
+	let result = {};
+
+	nextql.model("Test", {
+		fields: {
+			a: 1,
+			b: { c: 1 },
+			hello: () => "*",
+			hello2: "Test"
+		},
+		computed: {
+			hello() {
+				return undefined;
+			},
+
+			hello2() {
+				return undefined;
+			},
+
+			hello3() {
+				return undefined;
+			}
+		},
+		returns: {
+			test: () => "Test"
+		},
+		methods: {
+			test(params) {
+				return {};
+			}
+		}
+	});
+	await execute_model(
+		nextql,
+		"Test",
+		{ test: { a: 1, b: { d: 1 }, hello: 1, hello2: 1, hello3: 1 } },
+		{
+			result,
+			path: ["root"]
+		}
+	);
+	expect(result).toMatchObject({
+		root: {
+			test: { a: null, b: null, hello: null, hello2: null, hello3: null }
+		}
+	});
+});
+
+test("execute_model#method_return_scalar", async function() {
+	let result = {};
+
+	nextql.model("Test", {
+		fields: {
+			a: 1,
+			b: { c: 1 },
+			hello: () => "*",
+			hello2: "Test"
+		},
+		computed: {
+			hello() {
+				return undefined;
+			},
+
+			hello2() {
+				return undefined;
+			},
+
+			hello3() {
+				return undefined;
+			}
+		},
+		returns: {
+			test: () => "Test"
+		},
+		methods: {
+			test(params) {
+				return true;
+			}
+		}
+	});
+	await execute_model(
+		nextql,
+		"Test",
+		{ test: { a: 1, b: { d: 1 }, hello: 1, hello2: 1, hello3: 1 } },
+		{
+			result,
+			path: ["root"]
+		}
+	).catch(err =>
+		expect(err.message).toBe(
+			"Cannot query scalar as Test - path: root.test"
+		)
+	);
+});
+
+test("execute_model#computed_return_scalar", async function() {
+	let result = {};
+
+	nextql.model("Test", {
+		fields: {
+			a: 1,
+			b: { c: 1 },
+			hello: () => "*",
+			hello2: "Test"
+		},
+		computed: {
+			hello() {
+				return true;
+			},
+
+			hello2() {
+				return true;
+			},
+
+			hello3() {
+				return true;
+			}
+		},
+		returns: {
+			test: () => "Test"
+		},
+		methods: {
+			test(params) {
+				return {};
+			}
+		}
+	});
+	await execute_model(
+		nextql,
+		"Test",
+		{ test: { a: 1, b: { d: 1 }, hello: 1, hello2: 1, hello3: 1 } },
+		{
+			result,
+			path: ["root"]
+		}
+	).catch(err =>
+		expect(err.message).toBe(
+			"Cannot query scalar as Test - path: root.test.hello2"
+		)
+	);
+});

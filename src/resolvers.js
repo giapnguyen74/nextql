@@ -34,53 +34,45 @@ function info_append_path(info, path) {
  * @return {*} model
  */
 function resolve_type_define(nextql, fieldValue, fieldDefine, fieldPath) {
-	let fieldModel;
-
-	if (fieldDefine == undefined) {
-		return new NextQLError(
-			"Cannot resolve model: " + JSON.stringify(fieldDefine),
-			{ path: fieldPath }
-		);
-	}
-
-	if (fieldDefine.constructor && fieldDefine.constructor == Object) {
-		return new InlineModel(fieldDefine);
-	}
-
-	if (fieldDefine === 1) {
+	let fd = fieldDefine;
+	// First phrase resolve fieldDefine is auto or function into final fieldDefine
+	if (fd === 1) {
 		if (isPrimitive(fieldValue)) {
-			fieldModel = "*";
+			return "*";
 		} else {
-			fieldModel = nextql.resolveType(fieldValue);
+			fd = nextql.resolveType(fieldValue);
 			nextql.afterResolveTypeHooks.forEach(
-				hook => (fieldModel = hook(fieldValue) || fieldModel)
+				hook => (fd = hook(fieldValue) || fd)
 			);
 		}
 	}
 
-	if (typeof fieldDefine == "function") {
-		fieldModel = fieldDefine(fieldValue);
+	if (typeof fd == "function") {
+		fd = fieldDefine(fieldValue);
 	}
 
-	if (typeof fieldDefine == "string") {
-		fieldModel = fieldDefine;
-	}
-
-	if (fieldModel == undefined) {
+	// Second phrase resolve fieldDefine is explicit into fieldModel name;
+	if (fd == undefined) {
 		return new NextQLError(
 			"Cannot resolve model: " + JSON.stringify(fieldDefine),
 			{ path: fieldPath }
 		);
 	}
 
-	//scalar field
-	if (fieldModel === "*") {
-		return fieldModel;
+	// InlineModel
+	if (fd.constructor && fd.constructor == Object) {
+		return new InlineModel(fd);
 	}
 
-	const model = nextql.model(fieldModel);
+	// ScalarModel
+	if (fd === "*") {
+		return "*";
+	}
+
+	// NamedModel
+	const model = nextql.model(fd);
 	if (!model) {
-		return new NextQLError("Model not found: " + fieldModel, {
+		return new NextQLError("Model not found: " + fd, {
 			path: fieldPath
 		});
 	}
