@@ -3,9 +3,7 @@
 
 NextQL is JSON query language for APIs and a robust and extensible runtime for resolve those queries. [Equivalent](#equivalent-with-graphql) with [Facebook's GraphQL](http://graphql.org/), but much more simple.
 
-[![npm version](https://badge.fury.io/js/nextql.svg)](http://badge.fury.io/js/nextql)
-[![Build Status](https://travis-ci.org/nextql/nextql.svg?branch=master)](https://travis-ci.org/nextql/nextql.svg?branch=master)
-[![Coverage Status](https://coveralls.io/repos/graphql/nextql/badge.svg?branch=master)](https://coveralls.io/repos/graphql/nextql/badge.svg?branch=master)
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 
 1. Ask what you need, get exactly that. 
 2. Get many resources by a single request.
@@ -18,6 +16,7 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 - [NextQL](#nextql)
 	- [TOC](#toc)
 	- [Change Logs](#change-logs)
+		- [0.0.5 (08-10-2017)](#005-08-10-2017)
 		- [0.0.3 (08-08-2017)](#003-08-08-2017)
 	- [Install](#install)
 	- [Plugins](#plugins)
@@ -45,6 +44,10 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 <!-- /TOC -->
 
 ## Change Logs
+### 0.0.5 (08-10-2017)
+* Fix bugs
+* Replace lodash.set by simpler implementation; now nextql have no-dependencies and some increase in raw performance.
+
 ### 0.0.3 (08-08-2017)
 * Support explicit type defines for methods and computed fields.
 * Remove Object typed behavior.
@@ -52,6 +55,7 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 * New beforeExecute hook
 * Better error messages.
 * Back compatible with 0.0.2 except Object typed behavior.
+
 
 ## Install
 Install NextQL from npm
@@ -514,7 +518,7 @@ nextql.afterResolveType(source => modelName);
 ```
 
 ## Equivalent with GraphQL
-Compare two version of [getDie example](http://graphql.org/graphql-js/object-types/), NextQL very close with GraphQL. Very easy to convert GraphQL code into NextQL. NextQL's [StarWar](https://github.com/giapnguyen74/nextql/tree/master/samples/starwar) reuse most of GraphQL sample code execpt model's definition.
+Compare two version of [getDie example](http://graphql.org/graphql-js/object-types/), NextQL very close with GraphQL. Very easy to convert GraphQL code into NextQL. NextQL's [StarWar](https://github.com/giapnguyen74/nextql/tree/master/samples/starwar) reuse most of GraphQL sample code except model's definition.
 
 ![getdie](images/getdie.png)
 
@@ -560,3 +564,11 @@ Without type checked and parse query string, NextQL significantly faster than Gr
 ## Licensing
 
 "The code in this project is licensed under MIT license."
+
+
+[npm-image]: https://badge.fury.io/js/nextql.svg
+[npm-url]: https://npmjs.org/package/nextql
+[travis-image]: https://travis-ci.org/giapnguyen74/nextql.svg?branch=master
+[travis-url]: https://travis-ci.org/giapnguyen74/nextql
+[daviddm-image]: https://david-dm.org/giapnguyen74/nextql.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/giapnguyen74/nextql

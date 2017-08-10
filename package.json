@@ -52,9 +52,7 @@
 		"testEnvironment": "node"
 	},
 	"license": "MIT",
-	"dependencies": {
-		"lodash.set": "^4.3.2"
-	},
+	"dependencies": {},
 	"engines": {
 		"node": ">= 6.0.0"
 	}
