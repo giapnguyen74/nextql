@@ -16,7 +16,7 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 - [NextQL](#nextql)
 	- [TOC](#toc)
 	- [Change Logs](#change-logs)
-		- [0.0.5 (08-08-2017)](#005-08-08-2017)
+		- [0.0.5 (08-10-2017)](#005-08-10-2017)
 		- [0.0.3 (08-08-2017)](#003-08-08-2017)
 	- [Install](#install)
 	- [Plugins](#plugins)
@@ -44,7 +44,7 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 <!-- /TOC -->
 
 ## Change Logs
-### 0.0.5 (08-08-2017)
+### 0.0.5 (08-10-2017)
 * Fix bugs
 * Replace lodash.set by simpler implementation; now nextql have no-dependencies and some increase in raw performance.
 
