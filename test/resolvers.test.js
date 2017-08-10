@@ -975,7 +975,7 @@ test("execute_model#computed_return_undefined", async function() {
 	});
 });
 
-test("execute_model#method_return_scalar", async function() {
+test("execute_model#typed_method_return_scalar", async function() {
 	let result = {};
 
 	nextql.model("Test", {
@@ -1022,7 +1022,7 @@ test("execute_model#method_return_scalar", async function() {
 	);
 });
 
-test("execute_model#computed_return_scalar", async function() {
+test("execute_model#typed_computed_return_scalar", async function() {
 	let result = {};
 
 	nextql.model("Test", {
@@ -1065,6 +1065,39 @@ test("execute_model#computed_return_scalar", async function() {
 	).catch(err =>
 		expect(err.message).toBe(
 			"Cannot query scalar as Test - path: root.test.hello2"
+		)
+	);
+});
+
+test("execute_model#typed_field_return_scalar", async function() {
+	let result = {};
+
+	nextql.model("Test", {
+		fields: {
+			a: "Test"
+		},
+		returns: {
+			test: "Test"
+		},
+		methods: {
+			test(params) {
+				return {
+					a: true
+				};
+			}
+		}
+	});
+	await execute_model(
+		nextql,
+		"Test",
+		{ test: { a: { a: 1 } } },
+		{
+			result,
+			path: ["root"]
+		}
+	).catch(err =>
+		expect(err.message).toBe(
+			"Cannot query scalar as Test - path: root.test.a"
 		)
 	);
 });
