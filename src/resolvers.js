@@ -120,6 +120,46 @@ function resolve_scalar_value(nextql, value, valueQuery, info) {
 }
 
 /**
+ * Given value, valueModel and conditional path; call conditional function and process result
+ * @param {*} nextql 
+ * @param {*} value 
+ * @param {*} valueModel 
+ * @param {*} conditionalQuery 
+ * @param {*} info 
+ * @param {*} context 
+ */
+function execute_conditional(
+	nextql,
+	value,
+	valueModel,
+	conditional,
+	query,
+	info,
+	context
+) {
+	let model;
+
+	const modelName = valueModel.check(
+		value,
+		conditional,
+		query.$params,
+		context,
+		info
+	);
+
+	if (modelName instanceof Error) {
+		return Promise.reject(modelName);
+	}
+	if (typeof modelName == "string" && modelName != "*") {
+		model = nextql.model(modelName);
+	}
+
+	if (!model) return Promise.resolve();
+
+	return resolve_object_value(nextql, value, model, query, info, context);
+}
+
+/**
  * Given value, valueModel, valueQuery; recursive resolve field value 
  * @param {*} nextql 
  * @param {*} value 
@@ -150,9 +190,21 @@ function resolve_object_value(
 	return Promise.all(
 		Object.keys(valueQuery).map(path => {
 			if (path == "$params") return;
-			const newInfo = info_append_path(info, path);
-
 			const fieldName = path.split(nextql.aliasSeparator, 1)[0];
+
+			if (fieldName[0] === "?") {
+				return execute_conditional(
+					nextql,
+					value,
+					valueModel,
+					fieldName,
+					valueQuery[path],
+					info,
+					context
+				);
+			}
+
+			const newInfo = info_append_path(info, path);
 			return valueModel
 				.get(
 					value,
@@ -192,16 +244,19 @@ function resolve_value(nextql, value, modelDef, valueQuery, info, context) {
 
 	if (Array.isArray(value)) {
 		return Promise.all(
-			value.map((v, idx) =>
-				resolve_value(
+			value.map((v, idx) => {
+				//Fill array with null value first
+				const newInfo = info_append_path(info, idx);
+				set(newInfo.result, newInfo.path, null);
+				return resolve_value(
 					nextql,
 					v,
 					modelDef,
 					valueQuery,
-					info_append_path(info, idx),
+					newInfo,
 					context
-				)
-			)
+				);
+			})
 		);
 	}
 
@@ -274,6 +329,7 @@ module.exports = {
 	resolve_scalar_value,
 	resolve_value,
 	resolve_type_define,
+	execute_conditional,
 	execute_method,
 	execute_model
 };

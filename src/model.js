@@ -29,7 +29,7 @@ class Model {
 
 		try {
 			return Promise.resolve(
-				this.methods[methodName].apply(this, [params, context])
+				this.methods[methodName].apply(this, [params, context, info])
 			);
 		} catch (e) {
 			return Promise.reject(e);
@@ -43,7 +43,8 @@ class Model {
 					this.computed[fieldName].apply(this, [
 						value,
 						params,
-						context
+						context,
+						info
 					])
 				);
 			}
@@ -58,6 +59,22 @@ class Model {
 				new NextQLError(`No field: ${this.name}.${fieldName}`, info)
 			);
 		}
+	}
+
+	check(value, conditional, params = {}, context = {}, info) {
+		if (!this.computed[conditional]) {
+			return new NextQLError(
+				`No conditional: ${this.name}.${conditional}`,
+				info
+			);
+		}
+
+		return this.computed[conditional].apply(this, [
+			value,
+			params,
+			context,
+			info
+		]);
 	}
 }
 
@@ -76,6 +93,13 @@ class InlineModel {
 				new NextQLError(`No field: ${this.name}.${fieldName}`, info)
 			);
 		}
+	}
+
+	check(value, conditional, params = {}, context = {}, info) {
+		return new NextQLError(
+			"Not support conditional for inline model",
+			info
+		);
 	}
 }
 
