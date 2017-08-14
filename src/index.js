@@ -34,7 +34,10 @@ class NextQL {
 		}
 
 		let error;
-		this.beforeExecuteHooks.forEach(hook => (error = hook(query) || error));
+		this.beforeExecuteHooks.forEach(
+			hook => (error = hook(query, context) || error)
+		);
+
 		if (error) {
 			return Promise.reject(new Error(error));
 		}
