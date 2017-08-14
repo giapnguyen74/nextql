@@ -3,8 +3,6 @@ const nextql = new NextQL();
 
 const { execute_conditional, execute_model } = require("../src/resolvers");
 
-const { NextQLError } = require("../src/util");
-
 test("execute_conditional#simple", async function() {
 	let result = {};
 	const model = nextql.model("test", {

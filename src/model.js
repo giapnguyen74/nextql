@@ -18,6 +18,7 @@ class Model {
 			this.$options.mixins.forEach(mixin => mergeOptions(this, mixin));
 		}
 		mergeOptions(this, options);
+		this.getAttr = options.getAttr;
 	}
 
 	call(methodName, params = {}, context = {}, info) {
@@ -53,7 +54,9 @@ class Model {
 		}
 
 		if (this.fields[fieldName]) {
-			return Promise.resolve(value[fieldName]);
+			return Promise.resolve(
+				this.getAttr ? this.getAttr(value, fieldName) : value[fieldName]
+			);
 		} else {
 			return Promise.reject(
 				new NextQLError(`No field: ${this.name}.${fieldName}`, info)
