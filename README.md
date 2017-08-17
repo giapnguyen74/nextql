@@ -23,9 +23,12 @@ NextQL is JSON query language for APIs and a robust and extensible runtime for r
 	- [Plugins](#plugins)
 	- [Introduction to NextQL](#introduction-to-nextql)
 	- [Type System](#type-system)
+		- [getAttr hook](#getattr-hook)
 		- [Complex type define](#complex-type-define)
 	- [How NextQL decide field/method type?](#how-nextql-decide-fieldmethod-type)
 	- [Query](#query)
+		- [Conditional Query](#conditional-query)
+		- [Self Conditional Query](#self-conditional-query)
 		- [Arguments](#arguments)
 		- [Alias](#alias)
 		- [Traverse related object](#traverse-related-object)
@@ -72,6 +75,7 @@ npm install --save nextql
 * [nextql-validate](https://github.com/giapnguyen74/nextql-validate) : Validate nextql methods with fastest-validator.
 * [nextql-feathers](https://github.com/giapnguyen74/nextql-feathers) : Extend NextQL with awesome Feathersjs service. NextQL could do real-time/multiple backend/authentication.
 * [nextql-limit](https://github.com/giapnguyen74/nextql-limit) : Simple solution to protect against excessive or abusive calls (DoS)
+* [nextql-neo4j](https://github.com/giapnguyen74/nextql-neo4j) : Use nextql to provide OGM interface for neo4j database.
 
 ## Introduction to NextQL
 NextQL is simply a data query engine inspired by [Facebook GraphQL](http://graphql.org/) but much more simple. NextQL consists a type system based on pure JS objects and a JSON query language.
@@ -127,6 +131,37 @@ Different with GraphQL, NextQL not enforced strong-typed for field and method va
 * **"*"** : explicit assign value as scalar value.
 * **[Object]** : explicit define value as inline nested type
 * **[Function]** : Given a function, NextQL should call to resolve value type.
+
+### getAttr hook
+By default, nextql resolve directly field from source:
+```js
+	fieldValue = source[fieldName]
+```
+Override getAttr hook, you could implement your own field resolver. For example, Neo4j Entry object actually store  value inside "properties" field; so you either model Entry use nested fields or use getAttr hook
+
+without getAttr
+```js
+{
+	fields: { // without getAttr hook you must define Entry with nested properties field
+		properties: { 
+			name: 1
+		}
+	}
+}
+```
+
+with getAttr
+```js
+{
+	fields: { // with getAttr hook, you could define Entry as normal
+		name: 1
+	},
+	getAttr: (source, fieldName){
+		return source[fieldName];
+	}
+}
+```
+
 
 ### Complex type define
 Combine all those options, you can define very complex model. For example:
@@ -249,8 +284,159 @@ Equivalent call **me** method of class **user** then pick **fullName** field fro
 /user/me => { fullName }
 ```
 
+### Conditional Query
+NextQL conditional query is close with GraphQL fragment but more powerful. Conditional query is a computed function start with "?".
+```js
+{
+	"user": { 
+        "me": { 
+            "fullName": 1 
+			"?manager": {
+				"subordinates": {
+					"fullName": 1
+				}
+			}
+        }
+    }
+}
+```
+
+The results could be
+```js
+{
+    "user":{
+        "me": {
+            "fullName": "Giap Nguyen Huu",
+			"subordinates": [ // This fields only resolve if the computed "?manager" passed.
+				{ "fullName": "Tuyen Phuong"}
+			]
+        }
+    }
+}
+```
+
+The conditonal function is a resolver start with "?". It should return a model name or "true" if the conditionals passed. 
+
+If a model name, the query inside conditional field will resolved with return model. The behavior is same with GraphQL fragment.
+
+If true, the query inside conditonal field will resolved as current model or self conditonal query. 
+
+```js
+    nextql.model("a", {
+		fields: {
+			a: 1
+		},
+		computed: {
+			"?a": function(source, params) { // self conditional resolver
+				return source.a ? true : undefined;
+			},
+			"?b": function(source, params) { // normal conditional resolver; cast source as b model
+				return source.b ? "b" : undefined;
+			}
+		},
+		methods: {
+			test() {
+				return [{ a: "a", b: "b" }, { a: "a" }, { b: "b" }];
+			}
+		},
+		returns: {
+			test: "a"
+		}
+	});
+
+	nextql.model("b", {
+		fields: {
+			b: 1
+		}
+	});
+
+	const result = await nextql.execute({
+		a: {
+			test: {
+				"?a": {
+					a: 1
+				},
+				"?b": {
+					b: 1
+				}
+			}
+		}
+	});
+```
+
+The result should be
+```js
+	{
+		a: {
+			test: [
+				{
+					a: "a",
+					b: "b"
+				},
+				{
+					a: "a"
+				},
+				{
+					b: "b"
+				}
+			]
+		}
+	}
+```
+
+### Self Conditional Query
+ Self conditional is when the resolver return true. It seems make no sense because the parent query already resolve as current model. But it could useful in some usecases. Assume you have a User model. If a user is admin, it need additional fields. So you either define a User model with additional fields or 3 models: User interface, Admin model and User model. But if you feels use 1 model not clear the relationship and 3 models is overkill and self conditonal could be used.
+
+```js
+ nextql.model("User", {
+		fields: {
+			name: 1
+			adminWebsites: 1,
+			adminStuffs: 1
+		},
+		computed: {
+			"?admin": function(source, params) { // self conditional resolver
+				return source.isAdmin ? true : undefined;
+			}
+		}
+	});
+
+const result = await nextql.execute({
+		User: {
+			findAll: {
+				name: 1
+				"?admin": {
+					adminWebsites: 1,
+					adminStuffs: 1
+				}
+			}
+		}
+	});
+```
+
+The result should be
+```js
+	{
+		User: {
+			fillAll: [
+				{ name : "Thanh" }, // not admin
+				{ name : "Liem" },// not admin
+				{ name: "Giap",  adminWebsites: null, adminStuffs: [1,2,3]}, //admin
+			]
+		}
+	}
+```
+
+Next time you decide that Admin is enough complex for another model, just remove admin fields and update ?admin resolver. Client side use the same query without aware your changes.
+```js
+	"?admin": function(source, params) { 
+			return source.isAdmin ? "Admin" : undefined;
+		}
+```
+
+
 ### Arguments
-NextQL allow pass arguments to methods and computed fields via reserved **$params** field.
+NextQL allow pass arguments to methods and computed fields and conditional fields via reserved **$params** field.
 
 ```json
 {   
@@ -278,6 +464,30 @@ Could produce the JSON result:
 }
 ```
 
+You could use params in conditional query.
+```js
+{
+	computed: {
+		"?cast": function(source, params){ // I going to cast source in any model
+			return params.name;
+		}
+	}
+}
+```
+Then query:
+```js
+{
+	Person: {
+		get: {
+			personStuffs: 1,
+			"?cast": {
+				"$params": { "name": "Drone" }, // Please treat me as a drone
+				droneStuffs: 1
+			}
+		}
+	}
+}
+```
 ### Alias
 Because result field match with query field. If you need call multiple methods, fields you need alias. NextQL alias is a suffix separator which resolver ignore.
 ```json
