@@ -150,6 +150,11 @@ function execute_conditional(
 	if (modelName instanceof Error) {
 		return Promise.reject(modelName);
 	}
+
+	if (modelName === true) {
+		model = valueModel;
+	}
+
 	if (typeof modelName == "string" && modelName != "*") {
 		model = nextql.model(modelName);
 	}
@@ -192,6 +197,7 @@ function resolve_object_value(
 			if (path == "$params") return;
 			const fieldName = path.split(nextql.aliasSeparator, 1)[0];
 
+			//Conditional query?
 			if (fieldName[0] === "?") {
 				return execute_conditional(
 					nextql,

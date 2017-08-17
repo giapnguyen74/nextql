@@ -380,3 +380,41 @@ test("execute_model#mix_with_unresolve_value", async function() {
 		root: { test: [{ a: "a" }, { b: "b" }, { b: "b", a: "a" }, null] }
 	});
 });
+
+test("execute_model#self_conditional", async function() {
+	let result = {};
+
+	const amodel = nextql.model("amodel", {
+		fields: { a: 1, b: 1 },
+		computed: {
+			"?b": function(source) {
+				if (source.b) {
+					return true;
+				}
+			}
+		},
+		methods: {
+			test() {
+				return { a: "a", b: "b" };
+			}
+		},
+		returns: {
+			test: "amodel"
+		}
+	});
+	await execute_model(
+		nextql,
+		"amodel",
+		{
+			test: {
+				a: 1,
+				"?b": {
+					b: 1
+				}
+			}
+		},
+		{ result, path: ["root"] }
+	);
+
+	expect(result).toMatchObject({ root: { test: { b: "b", a: "a" } } });
+});

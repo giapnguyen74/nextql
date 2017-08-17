@@ -216,3 +216,63 @@ test("execute#super_complex_inline_type", async function() {
 		}
 	});
 });
+
+test("execute#conditional", async function() {
+	nextql.model("a", {
+		fields: {
+			a: 1
+		},
+		computed: {
+			"?a": function(source) {
+				return source.a ? true : undefined;
+			},
+			"?b": function(source) {
+				return source.b ? "b" : undefined;
+			}
+		},
+		methods: {
+			test() {
+				return [{ a: "a", b: "b" }, { a: "a" }, { b: "b" }];
+			}
+		},
+		returns: {
+			test: "a"
+		}
+	});
+
+	nextql.model("b", {
+		fields: {
+			b: 1
+		}
+	});
+
+	const result = await nextql.execute({
+		a: {
+			test: {
+				"?a": {
+					a: 1
+				},
+				"?b": {
+					b: 1
+				}
+			}
+		}
+	});
+
+	expect(result).toMatchObject({
+		a: {
+			test: [
+				{
+					a: "a",
+					b: "b"
+				},
+				{
+					a: "a"
+				},
+				{
+					b: "b"
+				}
+			]
+		}
+	});
+});
