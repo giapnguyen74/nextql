@@ -290,7 +290,7 @@ NextQL conditional query is close with GraphQL fragment but more powerful. Condi
 {
 	"user": { 
         "me": { 
-            "fullName": 1 
+            "fullName": 1, 
 			"?manager": {
 				"subordinates": {
 					"fullName": 1
