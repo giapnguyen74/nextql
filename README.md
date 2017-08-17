@@ -157,7 +157,7 @@ with getAttr
 		name: 1
 	},
 	getAttr: (source, fieldName){
-		return source[fieldName];
+		return source.properties[fieldName];
 	}
 }
 ```
@@ -290,7 +290,7 @@ NextQL conditional query is close with GraphQL fragment but more powerful. Condi
 {
 	"user": { 
         "me": { 
-            "fullName": 1 
+            "fullName": 1, 
 			"?manager": {
 				"subordinates": {
 					"fullName": 1
