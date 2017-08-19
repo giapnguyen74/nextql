@@ -76,6 +76,7 @@ npm install --save nextql
 * [nextql-feathers](https://github.com/giapnguyen74/nextql-feathers) : Extend NextQL with awesome Feathersjs service. NextQL could do real-time/multiple backend/authentication.
 * [nextql-limit](https://github.com/giapnguyen74/nextql-limit) : Simple solution to protect against excessive or abusive calls (DoS)
 * [nextql-neo4j](https://github.com/giapnguyen74/nextql-neo4j) : Use nextql to provide OGM interface for neo4j database.
+* [nextql-serverless](https://github.com/giapnguyen74/nextql-serverless) : NextQL serve as serverless aggregator function which invoke and concentrates many functions into single result.
 
 ## Introduction to NextQL
 NextQL is simply a data query engine inspired by [Facebook GraphQL](http://graphql.org/) but much more simple. NextQL consists a type system based on pure JS objects and a JSON query language.
