@@ -72,6 +72,7 @@ Install NextQL from npm
 npm install --save nextql
 ```
 ## Plugins
+* [nextql-configuration](https://github.com/giapnguyen74/nextql-configuration): Pattern to organize and distribute complex NextQL's model systems.
 * [nextql-validate](https://github.com/giapnguyen74/nextql-validate) : Validate nextql methods with fastest-validator.
 * [nextql-feathers](https://github.com/giapnguyen74/nextql-feathers) : Extend NextQL with awesome Feathersjs service. NextQL could do real-time/multiple backend/authentication.
 * [nextql-limit](https://github.com/giapnguyen74/nextql-limit) : Simple solution to protect against excessive or abusive calls (DoS)
