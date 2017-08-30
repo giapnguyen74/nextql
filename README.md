@@ -1,4 +1,6 @@
-![nextql logo](images/logo_next-01.png){:height="50px" width="50px"}
+
+<img src="images/logo_next-01.png" width="100" height="100">
+
 # NextQL 
 
 [**What is NextQL?**](https://medium.com/@giapnguyen74/what-is-nextql-5ca4193795ea) : My blog about NextQL's visions, thoughts and brief informations.
