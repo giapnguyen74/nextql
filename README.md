@@ -1,7 +1,11 @@
-![nextql logo](images/nextql.png)
+![nextql logo](images/logo_next-01.png)
 # NextQL 
 
+[**What is NextQL?**](https://medium.com/@giapnguyen74/what-is-nextql-5ca4193795ea) : My blog about NextQL's visions, thoughts and brief informations.
+
 NextQL is JSON query language for APIs and a robust and extensible runtime for resolve those queries. [Equivalent](#equivalent-with-graphql) with [Facebook's GraphQL](http://graphql.org/), but much more simple.
+
+
 
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 
