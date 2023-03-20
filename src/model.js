@@ -28,6 +28,12 @@ class Model {
 			);
 		}
 
+		if (!this.returns[methodName]) {
+			this.returns[methodName] = function () {
+				return info.path[0];
+			}
+		}
+
 		try {
 			return Promise.resolve(
 				this.methods[methodName].apply(this, [params, context, info])
